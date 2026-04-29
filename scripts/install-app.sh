@@ -30,29 +30,45 @@ fi
 
 case "${PLATFORM}-${SOURCE}" in
   ios-dev-build)
-    [[ -z "$APP_PATH" ]] && { echo "✗ --path required for dev-build" >&2; exit 1; }
-    [[ ! -d "$APP_PATH" && ! -f "$APP_PATH" ]] && { echo "✗ App not found: $APP_PATH" >&2; exit 1; }
+    [[ -z "$APP_PATH" ]] && { echo "[err] --path required for dev-build" >&2; exit 1; }
+    [[ ! -d "$APP_PATH" && ! -f "$APP_PATH" ]] && { echo "[err] App not found: $APP_PATH" >&2; exit 1; }
     xcrun simctl install booted "$APP_PATH"
-    echo "✓ Installed iOS app from $APP_PATH"
+    echo "[ok] Installed iOS app from $APP_PATH"
     ;;
   ios-expo-go)
-    [[ -z "$DEV_URL" ]] && { echo "✗ --url required for expo-go (e.g. exp://192.168.1.10:8081)" >&2; exit 1; }
+    [[ -z "$DEV_URL" ]] && { echo "[err] --url required for expo-go (e.g. exp://192.168.1.10:8081)" >&2; exit 1; }
+    if ! xcrun simctl listapps booted 2>/dev/null | grep -q "host.exp.exponent"; then
+      echo "[err] Expo Go is not installed on the booted iOS simulator." >&2
+      echo "      The skill cannot install Expo Go for you (it's distributed via the App Store" >&2
+      echo "      / Expo's CLI, not as a standalone .app)." >&2
+      echo "      Fix: in the terminal where 'expo start' / 'bun run dev' is running, press 'i'." >&2
+      echo "      Expo CLI will install Expo Go onto the booted sim and open your project." >&2
+      echo "      Then re-run this script." >&2
+      exit 1
+    fi
     xcrun simctl openurl booted "$DEV_URL"
-    echo "✓ Opened Expo Go (iOS) with $DEV_URL"
+    echo "[ok] Opened Expo Go (iOS) with $DEV_URL"
     ;;
   android-dev-build)
-    [[ -z "$APP_PATH" ]] && { echo "✗ --path required for dev-build" >&2; exit 1; }
-    [[ ! -f "$APP_PATH" ]] && { echo "✗ APK not found: $APP_PATH" >&2; exit 1; }
+    [[ -z "$APP_PATH" ]] && { echo "[err] --path required for dev-build" >&2; exit 1; }
+    [[ ! -f "$APP_PATH" ]] && { echo "[err] APK not found: $APP_PATH" >&2; exit 1; }
     adb install -r "$APP_PATH"
-    echo "✓ Installed Android APK from $APP_PATH"
+    echo "[ok] Installed Android APK from $APP_PATH"
     ;;
   android-expo-go)
-    [[ -z "$DEV_URL" ]] && { echo "✗ --url required for expo-go" >&2; exit 1; }
+    [[ -z "$DEV_URL" ]] && { echo "[err] --url required for expo-go" >&2; exit 1; }
+    if ! adb shell pm list packages 2>/dev/null | grep -q "host.exp.exponent"; then
+      echo "[err] Expo Go is not installed on the running Android emulator." >&2
+      echo "      Fix: in the terminal where 'expo start' / 'bun run dev' is running, press 'a'." >&2
+      echo "      Expo CLI will install Expo Go onto the running emulator and open your project." >&2
+      echo "      Then re-run this script." >&2
+      exit 1
+    fi
     adb shell am start -W -a android.intent.action.VIEW -d "$DEV_URL"
-    echo "✓ Opened Expo Go (Android) with $DEV_URL"
+    echo "[ok] Opened Expo Go (Android) with $DEV_URL"
     ;;
   *)
-    echo "✗ Unsupported combination: platform=$PLATFORM source=$SOURCE" >&2
+    echo "[err] Unsupported combination: platform=$PLATFORM source=$SOURCE" >&2
     echo "   Valid: (ios|android) × (dev-build|expo-go)" >&2
     exit 1
     ;;

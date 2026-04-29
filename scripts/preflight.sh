@@ -4,9 +4,9 @@
 
 set -u
 
-OK="✓"
-WARN="⚠"
-ERR="✗"
+OK="[ok]"
+WARN="[warn]"
+ERR="[err]"
 ok_count=0
 warn_count=0
 err_count=0
@@ -42,7 +42,7 @@ if command -v xcrun &>/dev/null && xcrun simctl list devices available &>/dev/nu
     ok_count=$((ok_count + 1))
   else
     echo "${ERR} No iOS simulators available"
-    echo "    Fix: open Xcode → Settings → Platforms and download a simulator runtime"
+    echo "    Fix: open Xcode [*] Settings [*] Platforms and download a simulator runtime"
     err_count=$((err_count + 1))
   fi
 else
@@ -90,7 +90,7 @@ if $android_ok; then
       ok_count=$((ok_count + 1))
     else
       echo "${WARN} No AVDs configured"
-      echo "    Fix: open Android Studio → Device Manager → Create Virtual Device"
+      echo "    Fix: open Android Studio [*] Device Manager [*] Create Virtual Device"
       warn_count=$((warn_count + 1))
     fi
   fi

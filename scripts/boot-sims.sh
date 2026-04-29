@@ -28,19 +28,19 @@ boot_ios() {
       | tr -d '()' || true)
   fi
   if [[ -z "$udid" ]]; then
-    echo "✗ No iPhone simulator available" >&2
+    echo "[err] No iPhone simulator available" >&2
     return 1
   fi
-  echo "→ Booting iOS simulator $udid…"
+  echo "[*] Booting iOS simulator $udid..."
   xcrun simctl boot "$udid" 2>/dev/null || true
   open -a Simulator
   xcrun simctl bootstatus "$udid" -b
-  echo "✓ iOS simulator ready: $udid"
+  echo "[ok] iOS simulator ready: $udid"
 }
 
 boot_android() {
   if ! command -v emulator &>/dev/null; then
-    echo "✗ emulator binary not on PATH — cannot boot Android" >&2
+    echo "[err] emulator binary not on PATH — cannot boot Android" >&2
     return 1
   fi
   local avd="$AVD_NAME"
@@ -48,23 +48,23 @@ boot_android() {
     avd=$(emulator -list-avds 2>/dev/null | head -n1 || true)
   fi
   if [[ -z "$avd" ]]; then
-    echo "✗ No AVD configured" >&2
+    echo "[err] No AVD configured" >&2
     return 1
   fi
 
   if adb devices 2>/dev/null | grep -q "emulator-"; then
-    echo "✓ Android emulator already running"
+    echo "[ok] Android emulator already running"
     return 0
   fi
 
-  echo "→ Booting Android emulator $avd…"
+  echo "[*] Booting Android emulator $avd..."
   nohup emulator @"$avd" -no-snapshot-save >/dev/null 2>&1 &
 
   adb wait-for-device
   while [[ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]]; do
     sleep 2
   done
-  echo "✓ Android emulator ready"
+  echo "[ok] Android emulator ready"
 }
 
 case "$PLATFORM" in

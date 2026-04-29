@@ -26,7 +26,7 @@ if [[ -z "$FLOWS" ]]; then
 fi
 
 if [[ ! -e "$FLOWS" ]]; then
-  echo "✗ Flows path not found: $FLOWS" >&2
+  echo "[err] Flows path not found: $FLOWS" >&2
   exit 1
 fi
 
@@ -42,7 +42,7 @@ run_one() {
   local out="$OUTPUT_DIR/$label"
   mkdir -p "$out"
 
-  echo "→ Running flows on $label…"
+  echo "[*] Running flows on $label..."
   if [[ -n "$device_arg" ]]; then
     maestro --device "$device_arg" test "${ENV_ARGS[@]}" \
       --output "$out/report.xml" --format junit "$FLOWS" 2>&1 | tee "$out/run.log"
@@ -52,9 +52,9 @@ run_one() {
   fi
   local rc=${PIPESTATUS[0]}
   if [[ $rc -eq 0 ]]; then
-    echo "✓ $label: PASS"
+    echo "[ok] $label: PASS"
   else
-    echo "✗ $label: FAIL (see $out/run.log)"
+    echo "[err] $label: FAIL (see $out/run.log)"
   fi
   return $rc
 }
@@ -74,27 +74,27 @@ fi
 exit_code=0
 case "$PLATFORM" in
   ios)
-    [[ -z "$ios_udid" ]] && { echo "✗ No iOS simulator booted. Run boot-sims.sh ios first." >&2; exit 1; }
+    [[ -z "$ios_udid" ]] && { echo "[err] No iOS simulator booted. Run boot-sims.sh ios first." >&2; exit 1; }
     run_one "ios" "$ios_udid" || exit_code=$?
     ;;
   android)
-    [[ -z "$android_serial" ]] && { echo "✗ No Android emulator running. Run boot-sims.sh android first." >&2; exit 1; }
+    [[ -z "$android_serial" ]] && { echo "[err] No Android emulator running. Run boot-sims.sh android first." >&2; exit 1; }
     run_one "android" "$android_serial" || exit_code=$?
     ;;
   both)
     if [[ -n "$ios_udid" ]]; then
       run_one "ios" "$ios_udid" || exit_code=$?
     else
-      echo "⚠ No iOS simulator booted, skipping iOS"
+      echo "[warn] No iOS simulator booted, skipping iOS"
     fi
     if [[ -n "$android_serial" ]]; then
       run_one "android" "$android_serial" || exit_code=$?
     else
-      echo "⚠ No Android emulator running, skipping Android"
+      echo "[warn] No Android emulator running, skipping Android"
     fi
     ;;
   *)
-    echo "✗ Unknown platform: $PLATFORM" >&2
+    echo "[err] Unknown platform: $PLATFORM" >&2
     exit 1
     ;;
 esac
