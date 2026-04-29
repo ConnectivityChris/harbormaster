@@ -142,18 +142,34 @@ This tiering applies to **debugging failures**. When **authoring** a new flow, u
 
 ## Authoring flows
 
-If the project has no `.maestro/` directory yet, scaffold one. Copy the relevant starters from `references/flow-examples/` into `<project>/.maestro/` and adapt them to the app's actual screen content.
+The skill ships three slash commands that cover the flow lifecycle. Use these as the entry points; do not reinvent the loop ad-hoc.
 
-For Maestro syntax (commands, selectors, env vars, `runFlow`, retry, conditional logic), see `references/writing-flows.md`.
+| Command | When to use | What it does |
+|---|---|---|
+| `/initflow` | Project has no `.maestro/` directory yet | One-time bootstrap — discovers the project, detects auth, scaffolds `.maestro/{config.json, README.md, app-launch.yaml, login.yaml?}` with the project's actual `appId` substituted in |
+| `/authorflow [flow-name]` | After init, adding a new flow | Phased loop — Discover → Interview → Walk-the-screens (one screenshot + `maestro hierarchy` per step) → Compose → Run once → Commit + update `.maestro/README.md` |
+| `/stabiliseflow <flow> [N]` | Before relying on a flow as a release-gate smoke | Runs the flow N times consecutively (default 3), reports flake rate, diagnoses non-deterministic failures |
 
-The general pattern for a new flow:
+The full process — phase definitions, auth-detection grep patterns, selector-priority order, screenshot/hierarchy capture commands, README template — lives in `references/authoring-flows.md`. **Read it before authoring**, do not improvise.
 
-1. **Identify the user journey** in plain English ("user opens app, taps Login, enters email and password, lands on home screen, taps a conversation, sees messages")
-2. **Write the YAML** using `tapOn`, `inputText`, `assertVisible`, etc.
-3. **Run it once** to see what fails — Maestro's error output points at the offending step
-4. **Adjust selectors** until it's stable across runs
+### Stability bar
 
-Bias toward **text selectors** (`tapOn: "Login"`) and `accessibilityLabel`-based selectors over coordinate-based taps. Coordinates are brittle.
+`/authorflow` ships with a **one-run stability bar** — if a freshly-authored flow passes once, it ships. Multi-run stability is a separate explicit step (`/stabiliseflow`). Rationale: one-run is fast for the inner-loop case; users who want release-gate confidence opt into the bar by running stabilise. Don't impose multi-run requirements during authoring.
+
+### Authoring evidence
+
+Phase C of `/authorflow` captures one screenshot per step into `<project>/.maestro/authoring-evidence/<flow>/`. These are gitignored but persisted on disk — useful when a flow breaks months later and someone wonders what the screen used to look like. Don't delete them at the end of authoring.
+
+### Selector priority (recap)
+
+Across all three commands, when picking selectors:
+
+1. `testID` (RN: see `references/writing-flows.md` for the `accessible={false}` container pattern when testIDs are missing from `maestro hierarchy`)
+2. `accessibilityLabel`
+3. text (regex if the app uses RN's bundled `accessibilityText`)
+4. **Never coordinates.** If the only selector you can get is a coordinate, the screen is missing accessibility support and the *app* needs a fix, not the flow.
+
+For Maestro YAML syntax (commands, env vars, `runFlow`, retry, conditional logic), see `references/writing-flows.md`.
 
 ## Project configuration
 

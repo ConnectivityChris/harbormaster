@@ -60,22 +60,28 @@ claude --plugin-dir ~/dev/mobile-flow-runner
 
 ## Use
 
-Once installed, the skill triggers on prompts like:
+Once installed, three slash commands cover the flow lifecycle:
+
+| Command | When |
+|---|---|
+| `/initflow` | First time using the skill on a project — scaffolds `.maestro/` with starter flows tuned to your project |
+| `/authorflow [flow-name]` | Adding a new flow — guided interview, screen capture, selector picking, compose, run |
+| `/stabiliseflow <flow> [N]` | Hardening a flow before relying on it as a release gate — runs N times, reports flake rate |
+
+The skill also triggers on natural-language prompts like:
 
 - "Run the regression flows on iOS"
 - "Test the app on the simulator before I push"
 - "Smoke test the mobile build"
 - "Click through the login flow on Android"
 
-Or invoke directly:
-
-```
-> Use mobile-flow-runner to verify the iOS build still launches and reaches the home screen
-```
+For new projects, start with `/initflow` then `/authorflow app-launch`.
 
 ## Project setup
 
-Add a `.maestro/` directory to your mobile project containing your flow files (YAML). Optionally add `.maestro/config.json` for project-level defaults:
+Use `/initflow` from Claude Code to scaffold the `.maestro/` directory automatically. It discovers your project's `bundleId` / `package`, detects whether you have auth, and writes starter flows + an onboarding README.
+
+If you'd rather set up by hand, add a `.maestro/` directory with your flow files (YAML) and optionally `.maestro/config.json` for project-level defaults:
 
 ```json
 {
@@ -133,6 +139,10 @@ mobile-flow-runner/
 │   └── marketplace.json       # marketplace catalog (this repo doubles as its own marketplace)
 ├── SKILL.md                   # the skill (loaded into Claude's context when triggered)
 ├── CHANGELOG.md               # release history
+├── commands/                  # slash commands wrapping the flow lifecycle
+│   ├── initflow.md            # /initflow — one-time project bootstrap
+│   ├── authorflow.md          # /authorflow — phased authoring loop for a single flow
+│   └── stabiliseflow.md       # /stabiliseflow — multi-run flake detection
 ├── scripts/
 │   ├── preflight.sh           # validate env
 │   ├── list-devices.sh        # enumerate iOS sims and Android AVDs for picker
@@ -140,10 +150,12 @@ mobile-flow-runner/
 │   ├── install-app.sh         # install dev build or open Expo Go
 │   └── run-flows.sh           # run Maestro and capture artifacts
 └── references/
+    ├── authoring-flows.md     # phased loop process guide (init / author / stabilise)
     ├── writing-flows.md       # Maestro YAML cheat sheet + RN-specific patterns
+    ├── maestro-readme-template.md # onboarding-doc template for <project>/.maestro/README.md
     ├── ios-setup.md           # Xcode + sim setup help
     ├── android-setup.md       # Android SDK + AVD setup help
-    ├── troubleshooting.md     # common failures + fixes
+    ├── troubleshooting.md     # common failures + fixes (incl. token-aware debug tiering)
     └── flow-examples/         # generic starter flows
         ├── app-launch.yaml
         ├── login.yaml

@@ -6,4 +6,5 @@
 
 # Local artifacts produced when validating against a real project
 .maestro/artifacts/
+.maestro/authoring-evidence/
 **/test_output/
