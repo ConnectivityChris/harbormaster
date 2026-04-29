@@ -236,7 +236,9 @@ The flow asserts the *outcome* (navigated to home), not the *interaction* (tap o
 
 ## Expo Go gotchas
 
-Running flows against an app loaded inside Expo Go (rather than a native dev build) has two specific traps:
+**Bottom line: Expo Go is fine for inner-loop "did I break launch?" checks but not suitable for hands-off regression runs.** Expo Go is a developer tool, not a test target — it surfaces dev menus, "What's new" popovers, network-permission prompts, and project-load dialogs that can block a flow mid-run and require manual taps from the user. For automated pre-release smoke tests, build a dev client (`bunx expo run:ios` / `:android`) and target your real bundle ID — flows run hands-off against a clean install.
+
+That said, if you're using Expo Go anyway:
 
 ### 1. `launchApp host.exp.Exponent` shows Expo Go's home screen, not your project
 
@@ -264,7 +266,13 @@ The first time a flow loads the project after Expo Go was launched fresh, the JS
 
 After the bundle is warm, subsequent runs are seconds, not minutes. None of this applies to native dev builds — those launch instantly.
 
-### 3. State leaks across runs
+### 3. Dev tools popovers can block flows
+
+Expo Go's floating dev-menu button, the occasional "What's new in Expo Go" sheet, network-permission prompts on first launch, and "Open with…" intent dialogs all need to be dismissed manually if they appear mid-flow. There's no reliable programmatic dismiss for all of them. If a flow stalls mid-step, check the simulator — there's likely a dialog the user has to tap through.
+
+This is the single best reason to switch to a dev build for any flow you want to run hands-off.
+
+### 4. State leaks across runs
 
 Expo Go keeps your project loaded across flow runs. This means **app state survives**: a successful login on run #1 leaves the user authenticated for run #2, so the login flow under test doesn't actually exercise login the second time — it auto-redirects to home and the test silently lies.
 

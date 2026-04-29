@@ -22,13 +22,18 @@ When invoked, the skill:
 - **Maestro CLI** (skill will offer to install if missing)
 - **Android SDK + AVD** (optional, for Android — skill runs iOS-only otherwise)
 
+## Expo Go vs dev build
+
+- **Dev build** (`bunx expo run:ios` / `:android`) is the **recommended target for regression runs**. No Expo Go overlays, no dev tools popovers, no cold-reload tax — flows run hands-off.
+- **Expo Go** is fine for inner-loop "did I break the launch?" checks but not for hands-off automation: dev menus, "What's new" sheets, and permission prompts can interrupt flows and require manual taps. Treat it as a fast feedback loop, not a CI target.
+
 ## Install
 
 > Until this is published to a marketplace, install as a local plugin directory.
 
 ```bash
 # Clone this repo somewhere
-git clone https://github.com/USERNAME/mobile-flow-runner ~/dev/mobile-flow-runner
+git clone git@github.com:ConnectivityChris/mobile-flow-runner.git ~/dev/mobile-flow-runner
 
 # Run Claude Code with this plugin mounted for the session
 claude --plugin-dir ~/dev/mobile-flow-runner

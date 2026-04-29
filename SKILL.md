@@ -56,10 +56,12 @@ Ask the user — or infer from project context (look for `app.json`, `app.config
 
 - **Platform**: `ios`, `android`, or `both`. Default: `both` if Android is available, otherwise `ios`.
 - **App source**:
-  - `dev-build` — a built `.app` (iOS sim) or `.apk` (Android). Recommended default.
-  - `expo-go` — Expo Go installed, dev server running, deep-link to project.
+  - `dev-build` — a built `.app` (iOS sim) or `.apk` (Android). **Recommended default for regression suites.** No Expo Go overlays, no dev menu interruptions, no extra cold-reload tax. Slower first build, but cleaner steady-state.
+  - `expo-go` — Expo Go installed, dev server running, deep-link to project. **Inner-loop only.** Expo Go can pop up dev tools / "What's new" / network-permission dialogs that block flows and require manual user input — fine for quick "did I break the launch?" checks, **not** suitable for a hands-off pre-release smoke run.
   - `installed` — app already installed; skip the install step.
 - **Bundle ID / Android package**: from project config or ask once.
+
+If the user is testing **before pushing a build to TestFlight / App Store / Play Store** (the primary use case for this skill), default to **dev build**. Only fall back to Expo Go when the user explicitly chooses speed over reliability or asks for it.
 
 If the project has `<project>/.maestro/config.json`, read it for these defaults rather than asking. See [Project configuration](#project-configuration) below.
 
