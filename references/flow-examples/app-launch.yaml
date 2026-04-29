@@ -1,0 +1,10 @@
+appId: ${APP_ID}
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd
+- assertVisible:
+    text: "${HOME_SCREEN_MARKER}"
+- takeScreenshot: app-launch

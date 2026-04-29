@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+tags:
+  - smoke
+  - auth
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+
+# Adapt these selectors to the app's actual login screen.
+# Prefer text or accessibilityLabel over coordinates.
+- tapOn: "Sign in"
+- tapOn:
+    id: "email_input"
+- inputText: ${USERNAME}
+- hideKeyboard
+
+- tapOn:
+    id: "password_input"
+- inputText: ${PASSWORD}
+- hideKeyboard
+
+- tapOn: "Log in"
+- extendedWaitUntil:
+    visible: "${HOME_SCREEN_MARKER}"
+    timeout: 15000
+- takeScreenshot: post-login

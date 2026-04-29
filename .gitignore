@@ -1,0 +1,9 @@
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local artifacts produced when validating against a real project
+.maestro/artifacts/
+**/test_output/

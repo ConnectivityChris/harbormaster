@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+tags:
+  - smoke
+---
+# Assumes the app is already on a home/root screen with a list (e.g. conversations,
+# inbox, feed). Run after login.yaml or with launchApp inline.
+
+- assertVisible: "${LIST_HEADING}"
+- assertVisible:
+    id: "${LIST_TEST_ID}"
+- takeScreenshot: list-view
+
+# Open the first item in the list and verify the detail screen renders.
+- tapOn:
+    id: "${LIST_FIRST_ITEM_ID}"
+- waitForAnimationToEnd
+- assertVisible: "${DETAIL_SCREEN_MARKER}"
+- takeScreenshot: detail-view
+
+- back
+- assertVisible: "${LIST_HEADING}"
