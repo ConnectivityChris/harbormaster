@@ -166,7 +166,73 @@ For uniqueness, prefer slightly longer substrings:
     text: ".*Forgot your password.*"
 ```
 
-The cleaner long-term fix is to add `testID` or `accessibilityLabel` props to your individual `Text` components in the app, then select by `id`. But for verifying a screen rendered, regex on text is the fastest path.
+## React Native + Maestro: making `testID` actually work
+
+`testID` is the right primary selector for tappable elements — it's deterministic and immune to layout shifts. But there's a subtlety on RN/iOS:
+
+| Component | Does `testID` get exposed to Maestro? |
+|---|---|
+| `<Pressable>`, `<Button>` (custom Pressable-based) | **Yes** — these are already discrete accessibility elements |
+| `<TextInput>` | **No, by default** — gets swallowed into the parent's bundled `accessibilityText` |
+
+The fix for `TextInput`: wrap it in a `<View accessible testID="...">`. The `accessible` prop forces that View to be a single accessibility node, exposing the `testID` as a `resource-id` Maestro can match.
+
+**Don't put testID directly on FormTextInput / Input / TextInput** — wrap it:
+
+```tsx
+// WRONG — testID is silently dropped from Maestro's view
+<FormTextInput
+  name="email"
+  testID="email_input"
+  ...
+/>
+
+// RIGHT — wrapper View becomes the discrete accessibility element
+<View accessible testID="email_input">
+  <FormTextInput
+    name="email"
+    ...
+  />
+</View>
+```
+
+Then in the flow:
+
+```yaml
+- tapOn:
+    id: "email_input"
+- inputText: ${MAESTRO_USERNAME}
+```
+
+Verify by running `maestro hierarchy` after a project reload — your testIDs should appear as `resource-id` entries.
+
+## Buttons that vanish mid-transition
+
+A `<Button>` whose label switches to a `<Spinner>` while submitting (typical for login / save / submit) can momentarily lose its testID from the accessibility tree as the children swap. If your flow has:
+
+```yaml
+- tapOn:
+    id: "login_submit"
+- extendedWaitUntil:
+    visible: ...
+```
+
+…and the form auto-submits on keyboard return (or is a fast network), Maestro can race the transition and report "Element not found" when really the action succeeded. Make the tap optional:
+
+```yaml
+- runFlow:
+    when:
+      visible:
+        id: "login_submit"
+    commands:
+      - tapOn:
+          id: "login_submit"
+
+- extendedWaitUntil:
+    visible: ...
+```
+
+The flow asserts the *outcome* (navigated to home), not the *interaction* (tap occurred), which is what you actually care about.
 
 ## Expo Go gotchas
 
@@ -197,6 +263,33 @@ The first time a flow loads the project after Expo Go was launched fresh, the JS
 - **Or warm the bundle before running flows** — open the project in Expo Go once, wait for it to fully render, then start the flow
 
 After the bundle is warm, subsequent runs are seconds, not minutes. None of this applies to native dev builds — those launch instantly.
+
+### 3. State leaks across runs
+
+Expo Go keeps your project loaded across flow runs. This means **app state survives**: a successful login on run #1 leaves the user authenticated for run #2, so the login flow under test doesn't actually exercise login the second time — it auto-redirects to home and the test silently lies.
+
+Two layers of state to clear:
+
+| Storage | Cleared by |
+|---|---|
+| iOS Keychain (where `expo-secure-store` lives) | `clearKeychain` |
+| JS-side caches (TanStack Query, Zustand, React state) | `launchApp clearState: true` (kills Expo Go's JS context) |
+
+The combination at the start of any flow that depends on a clean slate:
+
+```yaml
+- clearKeychain
+- launchApp:
+    clearState: true
+- openLink: ${PROJECT_URL}
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "..."
+    timeout: 120000   # cold reload after clearState
+```
+
+Cost: a cold bundle reload (the 60-120s tax). Worth it for any auth-dependent flow.
 
 ### Parameterise the appId
 

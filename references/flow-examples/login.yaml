@@ -3,36 +3,57 @@ tags:
   - smoke
   - auth
 ---
-# Credentials come from env vars supplied at run time only.
-# The skill never stores them. Set them in your shell, or let the skill
-# prompt for them per run; either way they leave no persistent trace.
+# Credentials come from MAESTRO_USERNAME / MAESTRO_PASSWORD env vars supplied
+# at run time only. The skill never stores them.
+#
+# Selectors use testID props on the form. For React Native specifically, you
+# must wrap each TextInput in a `<View accessible testID="...">` — RN bundles
+# sibling Text into the parent's accessibilityText, swallowing testID on the
+# TextInput itself unless the parent is a discrete accessibility element.
+# Buttons (Pressable) work fine because they're already discrete.
+# See references/writing-flows.md for the full RN testing patterns.
 
+# 1. Reset auth state. Wipes iOS Keychain (where expo-secure-store lives) AND
+#    Expo Go's data (which kills the JS context, releasing in-memory caches).
+- clearKeychain
+- launchApp:
+    clearState: true
 - openLink: ${PROJECT_URL}
 - waitForAnimationToEnd
 
+# 2. Wait for the login screen. Cold bundle compile after clearState can be
+#    slow (~60-120s on first run; cached after that).
 - extendedWaitUntil:
     visible:
-      text: ".*Log In.*"
+      id: "email_input"
     timeout: 120000
 
-# Adapt these selectors to the app's actual login screen.
-# Prefer testID / accessibilityLabel selectors when you can; fall back to
-# regex text matching because React Native bundles sibling Text into one
-# parent accessibilityText (see references/writing-flows.md).
+# 3. Type credentials. eraseText guards against any prefilled state.
 - tapOn:
     id: "email_input"
+- eraseText: 60
 - inputText: ${MAESTRO_USERNAME}
-- hideKeyboard
 
 - tapOn:
     id: "password_input"
+- eraseText: 60
 - inputText: ${MAESTRO_PASSWORD}
-- hideKeyboard
 
-- tapOn:
-    text: "Log In"
+# 4. Submit. Make the tap optional (runFlow:when) — once the button enters
+#    its loading state, its testID can briefly become unreachable as the
+#    spinner replaces the children. The form may also auto-submit on
+#    keyboard return, in which case login_submit is gone before we tap.
+- runFlow:
+    when:
+      visible:
+        id: "login_submit"
+    commands:
+      - tapOn:
+          id: "login_submit"
+
+# 5. Verify navigation to home.
 - extendedWaitUntil:
     visible:
       text: ".*${HOME_SCREEN_TEXT}.*"
     timeout: 30000
-- takeScreenshot: post-login
+- takeScreenshot: post-login-home
