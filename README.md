@@ -29,17 +29,32 @@ When invoked, the skill:
 
 ## Install
 
-> Until this is published to a marketplace, install as a local plugin directory.
+This repo doubles as a Claude Code plugin marketplace. Inside Claude Code:
 
-```bash
-# Clone this repo somewhere
-git clone git@github.com:ConnectivityChris/mobile-flow-runner.git ~/dev/mobile-flow-runner
-
-# Run Claude Code with this plugin mounted for the session
-claude --plugin-dir ~/dev/mobile-flow-runner
+```
+/plugin marketplace add ConnectivityChris/mobile-flow-runner
+/plugin install mobile-flow-runner@connectivity-chris
 ```
 
-Alternatively, symlink it into your user plugins directory.
+Or via the CLI:
+
+```bash
+claude plugin marketplace add ConnectivityChris/mobile-flow-runner
+claude plugin install mobile-flow-runner@connectivity-chris
+```
+
+To pin to a specific tag (recommended for stability):
+
+```
+/plugin marketplace add ConnectivityChris/mobile-flow-runner@v0.1.0
+```
+
+For local development on the plugin itself:
+
+```bash
+git clone git@github.com:ConnectivityChris/mobile-flow-runner.git ~/dev/mobile-flow-runner
+claude --plugin-dir ~/dev/mobile-flow-runner
+```
 
 ## Use
 
