@@ -6,7 +6,7 @@ All notable changes to mobile-flow-runner will be documented in this file. The f
 
 ## [0.1.0] — 2026-04-29
 
-Initial release. End-to-end validated against happi (Expo SDK 55, iOS 26.2 simulator, Maestro 2.5.0) running both `app-launch` and `login` smoke flows.
+Initial release. End-to-end validated against an Expo SDK 55 project on iOS 26.2 simulator with Maestro 2.5.0, running both `app-launch` and `login` smoke flows.
 
 ### Added
 - `mobile-flow-runner` skill (`SKILL.md`) — orchestrates preflight, device picker, sim/emulator boot, app install, flow execution, and result reporting

@@ -145,7 +145,7 @@ appId: com.example.app
 React Native on iOS bundles all child `Text` content into the parent view's combined `accessibilityText` for VoiceOver. So a login screen with separate `<Text>Email</Text>` and `<Text>Password</Text>` exposes a single parent element with:
 
 ```
-accessibilityText = "Log In, Email, happi@example.com, Password, *********, Forgot your password?, ..."
+accessibilityText = "Log In, Email, user@example.com, Password, *********, Forgot your password?, ..."
 ```
 
 Maestro's exact `text` matcher won't find the discrete word `"Email"` as a leaf element under that parent. **Use regex selectors against `text`** — they match the combined string:
@@ -173,9 +173,11 @@ For uniqueness, prefer slightly longer substrings:
 | Component | Does `testID` get exposed to Maestro? |
 |---|---|
 | `<Pressable>`, `<Button>` (custom Pressable-based) | **Yes** — these are already discrete accessibility elements |
-| `<TextInput>` | **No, by default** — gets swallowed into the parent's bundled `accessibilityText` |
+| `<TextInput>` (bare, no `accessible`) | **No** — testID is dropped, placeholder gets bundled into parent's `accessibilityText` |
+| `<TextInput accessible>` (bare, accessible prop directly on it) | **Still no** — empirically verified; the parent's bundled accessibility container wins |
+| `<View accessible testID="..."><TextInput .../></View>` | **Yes** — wrapper becomes a discrete node and exposes the testID |
 
-The fix for `TextInput`: wrap it in a `<View accessible testID="...">`. The `accessible` prop forces that View to be a single accessibility node, exposing the `testID` as a `resource-id` Maestro can match.
+The fix for `TextInput`: wrap it in a `<View accessible testID="...">`. The `accessible` prop on the **wrapper View** (not the TextInput itself) forces a single discrete accessibility node, exposing the `testID` as a `resource-id` Maestro can match. Setting `accessible` directly on the TextInput does not work — verified by adding bare `<TextInput accessible testID="...">` instances and observing they never surface in `maestro hierarchy` regardless.
 
 **Don't put testID directly on FormTextInput / Input / TextInput** — wrap it:
 
