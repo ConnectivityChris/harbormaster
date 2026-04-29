@@ -99,24 +99,24 @@ Starter flows are in `references/flow-examples/` — copy and adapt.
 
 ### One-time app changes for hands-off flows
 
-Maestro talks to your app via the iOS / Android accessibility tree. React Native on iOS bundles all sibling `<Text>` content into a single parent `accessibilityText` element, which means individual `TextInput`s aren't directly addressable by Maestro selectors **unless you wrap them**. For flows that interact with form inputs (login, search, profile edit, etc.):
+Maestro talks to your app via the iOS / Android accessibility tree. React Native on iOS sometimes flattens descendants of an accessibility-container parent into one bundled label, which silently drops `testID` on every child. The fix is **one prop on the container**, not a wrapper per input:
 
 ```tsx
-// In your login screen / form components
-import { View } from "react-native";
+// In your layout component (KeyboardAvoidingView, SafeAreaView, AuthLayout, etc.)
+<KeyboardAvoidingView accessible={false} ...>
+  {children}
+</KeyboardAvoidingView>
+```
 
-<View accessible testID="email_input">
-  <TextInput ... />
-</View>
+After that, bare `testID` on `TextInput` works directly:
 
-<View accessible testID="password_input">
-  <TextInput secureTextEntry ... />
-</View>
-
+```tsx
+<FormTextInput name="email" testID="email_input" ... />
+<FormTextInput name="password" testID="password_input" secureTextEntry ... />
 <Button testID="login_submit" onPress={...}>...</Button>
 ```
 
-`<Pressable>` and `<Button>` don't need a wrapper — they expose `testID` natively. Only `<TextInput>` (and components built around it) needs the `<View accessible>` wrapper. See `references/writing-flows.md` for the full RN-specific patterns.
+`<Pressable>` and `<Button>` already expose `testID` natively without container help. The `accessible={false}` fix is needed only when an ancestor View is acting as an accessibility container that swallows descendants. See `references/writing-flows.md` for the full RN-specific patterns and the per-input wrapper fallback for cases where you can't reach the container.
 
 ## Known limitations / not yet exercised
 

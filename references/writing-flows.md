@@ -315,10 +315,25 @@ This way the same flow file works against both environments.
 
 ## Inspecting your app
 
-To find selectors interactively:
+This skill is mostly automated — Claude drives flow authoring and debugging itself, using text-based inspection where possible.
+
+**Default for Claude (and for scripted use):** dump the current screen's accessibility tree as text. Cheap, grep-able, parseable.
 
 ```bash
-maestro studio
+maestro --device <udid-or-serial> hierarchy
 ```
 
-This opens a browser at the running app and lets you hover over elements to copy selectors.
+Filter to the fields that matter (text, ids, enabled state) to keep token cost low:
+
+```bash
+maestro --device <udid-or-serial> hierarchy \
+  | jq '.. | objects | {text, "resource-id", enabled} | select(.text or ."resource-id")'
+```
+
+When **debugging a failed flow**, prefer `maestro hierarchy` over screenshots — see `troubleshooting.md` → "Efficient debugging" for the cost tiering.
+
+**For human users iterating at the keyboard:** `maestro studio` opens a browser-based interactive inspector — hover over elements to copy selectors. This is a user-only tool; Claude can't drive its browser UI, so it should not be invoked from the skill flow.
+
+```bash
+maestro studio   # user-only — interactive browser inspector
+```

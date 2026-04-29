@@ -115,13 +115,30 @@ The flows path is typically `<project>/.maestro/` — a directory of `.yaml` fil
 
 ### 8. Report
 
-Summarise pass/fail per flow per platform. On failure:
+Summarise pass/fail per flow per platform. **On failure, diagnose in tiers — cheapest first. Do not jump straight to screenshots; they are the most token-expensive tool and rarely needed first.**
 
-- Read the screenshot at the failure point (`artifacts/<run-id>/<platform>/screenshot-*.png`)
-- Surface the most relevant log lines (last ~30 lines of `run.log`)
-- Suggest the likely cause (element not found → selector probably wrong; timeout → app slow to load; assertion failed → behaviour changed)
+**Tier 0 — Maestro's own output (read every time):**
+- Last ~30 lines of `artifacts/<run-id>/<platform>/run.log` — Maestro names the failed step and the selector it couldn't match
+- The matching JUnit entry in `report.xml`
+
+Most failures (selector typos, missing waits, behaviour changes) resolve here. Stop if Tier 0 is enough.
+
+**Tier 1 — live UI hierarchy (on demand, only if Tier 0 isn't enough):**
+- The booted device is still running after a flow fails. Invoke `maestro hierarchy` inline to inspect the current screen state — text, ids, resource-ids, enabled state — without re-running the flow.
+- For iOS: `maestro --device <udid> hierarchy`. For Android: `maestro --device <serial> hierarchy`. Pipe through `jq` to keep only the fields you need (e.g. `jq '.. | objects | {text, resource-id, enabled} | select(.text or ."resource-id")'`) — raw hierarchy on a busy RN screen can exceed 5k tokens.
+- Use this to answer: does the selector exist at all? Is it disabled? Is it under a different id than the flow assumes? Did the screen even render?
+
+**Tier 2 — screenshot at failure point (only if Tier 0 + Tier 1 don't explain it):**
+- Read `artifacts/<run-id>/<platform>/screenshot-*.png` only when the question is visual: layout overlap, unexpected dialog, dark/empty render, animation state. Each image costs ~1.5k tokens — load deliberately.
+
+**Tier 3 — video (suggest to the user, do not load yourself):**
+- For non-deterministic / timing failures, point the user at `artifacts/<run-id>/<platform>/*.mp4`. Don't try to consume it.
+
+After diagnosis, suggest the likely cause (element not found → selector wrong or screen not loaded; timeout → app slow / wrong screen; assertion failed → behaviour changed) and the specific fix.
 
 Do NOT just say "tests failed, here's the log." Diagnose.
+
+This tiering applies to **debugging failures**. When **authoring** a new flow, use whatever you need (including screenshots) to get the flow correct first — optimise later.
 
 ## Authoring flows
 
@@ -168,7 +185,7 @@ If the file is missing, prompt for the values you need and offer to write the co
 Common failure modes and fixes:
 
 - **"Simulator won't boot"** → check Xcode is installed (not just CLI tools); try `xcrun simctl shutdown all && xcrun simctl erase all` to reset state
-- **"Maestro can't find element"** → screenshot the screen, inspect via `maestro studio`, prefer text or accessibility-label selectors
+- **"Maestro can't find element"** → run `maestro --device <udid-or-serial> hierarchy` to inspect the live accessibility tree, prefer text or accessibility-label selectors
 - **"App won't install on iOS sim"** → the `.app` was built for a real device, not the simulator. Look for a `Debug-iphonesimulator` build directory.
 - **"Expo Go opens but my project doesn't load"** → the dev server URL is stale or the IP has changed. Restart `bunx expo start` and use the fresh URL.
 - **"Android emulator boots but adb says 'unauthorized'"** → run `adb kill-server && adb start-server`

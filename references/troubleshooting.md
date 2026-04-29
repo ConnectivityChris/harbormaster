@@ -46,10 +46,32 @@ The APK targets a newer Android API than the AVD. Recreate the AVD with a newer 
 **"Expo Go opens but my project doesn't load"**
 The dev server URL is stale or the LAN IP has changed. Restart `bunx expo start` and use the fresh URL printed in the terminal (`exp://192.168.x.x:8081`).
 
+## Efficient debugging (token-aware tiering)
+
+When diagnosing a failure, work cheapest-to-costliest. Screenshots are the most token-expensive tool you have — reach for them last, not first.
+
+| Tier | Tool | Use for | Cost |
+|---|---|---|---|
+| 0 | `run.log` + JUnit `report.xml` | Failed step name, selector that didn't match, stack of preceding steps | ~tens to hundreds of tokens |
+| 1 | `maestro hierarchy` (filter with `jq`) | "Does the selector exist?" "Is it disabled?" "What id is the element actually under?" | ~hundreds to low-thousands |
+| 2 | Screenshot at failure point | Visual issues only — layout overlap, unexpected dialog, dark/empty render | ~1.5k tokens per image |
+| 3 | Video | Timing / non-determinism — hand to the user, don't try to consume yourself | n/a |
+
+The booted sim/emulator is still running after a flow fails — `maestro hierarchy` inspects current screen state without re-running. Filter the output to keep just the fields you need:
+
+```bash
+maestro --device <udid-or-serial> hierarchy \
+  | jq '.. | objects | {text, "resource-id", enabled} | select(.text or ."resource-id")'
+```
+
+Raw hierarchy on a busy RN screen can be 5k+ tokens; the filter above typically cuts it under 1k.
+
+This tiering applies to **debugging**. When **authoring** new flows, use whatever you need (including screenshots) to get the flow correct — efficiency matters less than correctness during authoring.
+
 ## Flow execution
 
 **"Element not found"**
-The selector doesn't match anything on screen. Open `maestro studio` to inspect the running app and find the right text / accessibility-label / id. Prefer text and accessibility-label selectors over coordinates.
+The selector doesn't match anything on screen. Run `maestro hierarchy` (see [Efficient debugging](#efficient-debugging-token-aware-tiering) above) to confirm what's actually on screen — cheaper than a screenshot, often enough to find the right selector. Prefer text and accessibility-label selectors over coordinates.
 
 **"Element found but tap had no effect"**
 The element is rendered but disabled, off-screen, or covered by something. Check `enabled: true` selector qualifier, or scroll to it first.
