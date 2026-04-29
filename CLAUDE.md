@@ -111,13 +111,25 @@ Each script is invokable directly, useful when iterating on bash logic without b
 
 This repo doubles as the marketplace for the plugin (`.claude-plugin/marketplace.json`).
 
-When cutting a new version:
+**Every release MUST tag and push.** Untagged commits on `main` are not consumable by users who pin via `/plugin marketplace add ...@vX.Y.Z`, and an unpushed tag is invisible to the marketplace. Skipping either step ships a release that nobody can install at the version you claimed.
+
+When cutting a new version, do all of the following — no shortcuts:
+
 1. Bump `version` in `.claude-plugin/plugin.json`.
 2. Move `[Unreleased]` items in `CHANGELOG.md` under a new `[X.Y.Z] — YYYY-MM-DD` header (Keep a Changelog format).
 3. Update the comparison link footers at the bottom of `CHANGELOG.md`.
-4. Tag and push: `git tag vX.Y.Z && git push --tags`.
+4. Commit the version bump (alongside the feature commits being released).
+5. **Push `main`**: `git push origin main`.
+6. **Tag and push the tag**: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+7. Verify the tag is visible on GitHub before announcing — `gh release view vX.Y.Z` or check the tags page.
 
-Keep `plugin.json` `version` and the `CHANGELOG.md` release tag in sync — drift between them breaks `/plugin marketplace add ...@vX.Y.Z` pinning.
+Keep `plugin.json` `version` and the `CHANGELOG.md` release header in sync — drift between them breaks `/plugin marketplace add ...@vX.Y.Z` pinning.
+
+**No version edit to `marketplace.json` is needed.** The marketplace catalog uses `source: "./"` which resolves to whatever ref the user pins; the tag IS the version. Editing `marketplace.json` per release is a sign you're misunderstanding the model — stop and re-check.
+
+### Why this matters
+
+Users install via `/plugin marketplace add ConnectivityChris/mobile-flow-runner@vX.Y.Z`. That resolution chain reads `marketplace.json` from the tag, then loads `plugin.json` and the rest of the plugin contents from that tag. If the tag doesn't exist, install fails. If `plugin.json` and the tag disagree on version, the user gets confusing diagnostics. If `main` is pushed but the tag isn't, the install command falls back to HEAD silently — users get unreleased code thinking they pinned a version.
 
 ## Editing guidance
 

@@ -162,6 +162,20 @@ mobile-flow-runner/
         └── view-list.yaml
 ```
 
+## Releases
+
+This repo is its own Claude Code marketplace (`.claude-plugin/marketplace.json`). Users install via `/plugin marketplace add ConnectivityChris/mobile-flow-runner` (HEAD) or `@vX.Y.Z` (pinned).
+
+For maintainers cutting a release, **always**:
+
+1. Bump `version` in `.claude-plugin/plugin.json`.
+2. Move `[Unreleased]` items in `CHANGELOG.md` under a new `[X.Y.Z] — YYYY-MM-DD` header.
+3. Update comparison link footers in `CHANGELOG.md`.
+4. Commit and `git push origin main`.
+5. `git tag vX.Y.Z && git push origin vX.Y.Z`.
+
+The git tag IS the marketplace release. An unpushed tag means version-pinned installs fall back silently to HEAD — users get unreleased code thinking they pinned. Push the tag every time. See `CLAUDE.md` → "Release process" for the full reasoning.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).
