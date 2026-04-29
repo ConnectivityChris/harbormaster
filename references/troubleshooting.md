@@ -67,17 +67,15 @@ Almost always one of: different simulator size (coordinate-based selectors break
 
 ## Credentials
 
-**"Keychain prompt every run"**
-You may have answered "no" to storing creds. Re-run the skill and choose "yes" when prompted, or store directly:
-```bash
-~/.claude/plugins/cache/mobile-flow-runner/scripts/keychain-creds.sh set <account> <user> <pass>
-```
+The skill never stores credentials. If a flow needs login, the skill either reads the variable from your shell environment (if already set) or prompts at the start of the run — values are used for that invocation only and discarded after.
 
-**"Wrong creds being used"**
-Clear and re-set:
+**"I get prompted every run, can I avoid it?"**
+Yes — pre-export the variable in your shell before invoking:
 ```bash
-keychain-creds.sh clear <account>
+export MAESTRO_USERNAME="..."
+export MAESTRO_PASSWORD="..."
 ```
+Or use a tool like `direnv` with a gitignored `.envrc` per project. The skill will use what's already set and skip the prompt. Storage is your responsibility, not the skill's — by design.
 
 ## Artifacts
 

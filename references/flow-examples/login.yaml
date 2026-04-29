@@ -3,6 +3,10 @@ tags:
   - smoke
   - auth
 ---
+# Credentials come from env vars supplied at run time only.
+# The skill never stores them. Set them in your shell, or let the skill
+# prompt for them per run; either way they leave no persistent trace.
+
 - launchApp:
     clearState: true
 - waitForAnimationToEnd
@@ -12,12 +16,12 @@ tags:
 - tapOn: "Sign in"
 - tapOn:
     id: "email_input"
-- inputText: ${USERNAME}
+- inputText: ${MAESTRO_USERNAME}
 - hideKeyboard
 
 - tapOn:
     id: "password_input"
-- inputText: ${PASSWORD}
+- inputText: ${MAESTRO_PASSWORD}
 - hideKeyboard
 
 - tapOn: "Log in"

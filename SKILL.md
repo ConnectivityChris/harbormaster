@@ -79,15 +79,16 @@ For Expo Go, the script uses `xcrun simctl openurl` (iOS) or `adb shell am start
 
 ### 5. Handle credentials (if flows need login)
 
-If a flow file references `${USERNAME}` or `${PASSWORD}`:
+**This skill never stores credentials.** Anything sensitive lives only in the user's environment for the duration of the run.
 
-1. Try `${CLAUDE_PLUGIN_ROOT}/scripts/keychain-creds.sh get <account>` — `<account>` is the project name or value from `credsAccount` in the project config.
-2. If creds aren't found (script exits non-zero), ask the user via `AskUserQuestion` for username and password.
-3. Offer to store them: "Store these in your macOS Keychain so I don't have to ask again? (yes / no / never for this project)"
-4. If yes, run `keychain-creds.sh set <account> <username> <password>`.
-5. Pass the creds to Maestro via `--env USERNAME=... --env PASSWORD=...`.
+If a flow file references `${USERNAME}`, `${PASSWORD}`, or any other secret env var:
 
-If the user passes `--no-store` or selects "never", skip the offer and prompt every run.
+1. **First, check the shell environment** — if the variable is already set (e.g. the user pre-exported it or uses `direnv`), use it as-is and don't prompt. Read with `printenv NAME`; do not log the value.
+2. **If not set, prompt the user** via `AskUserQuestion` for each missing value. State explicitly: "I won't store this — it's used only for this run."
+3. **Pass the values through to Maestro via `--env KEY=VALUE`** for this invocation. Do not write them to disk, do not echo them in logs, do not include them in error reports.
+4. **Do not offer to "remember"** the values. Do not write a `.env` file. Do not call any keychain command.
+
+If a user wants persistent creds, they manage that themselves outside the skill — for example by exporting in their shell rc file or using `direnv` with a gitignored `.envrc`. The skill stays out of that boundary entirely.
 
 ### 6. Run flows
 
@@ -141,8 +142,7 @@ If the project has `<project>/.maestro/config.json`, read it for defaults:
   "expoGo": {
     "devServerUrl": "exp://192.168.1.10:8081"
   },
-  "flowsDir": ".maestro",
-  "credsAccount": "example-app"
+  "flowsDir": ".maestro"
 }
 ```
 
@@ -167,5 +167,5 @@ For a fuller list see `references/troubleshooting.md`.
 - `references/android-setup.md` — Android SDK + AVD setup, troubleshooting
 - `references/troubleshooting.md` — common errors and fixes
 - `references/flow-examples/app-launch.yaml` — verify app launches and reaches home
-- `references/flow-examples/login.yaml` — log in with stored creds
+- `references/flow-examples/login.yaml` — log in using env-supplied creds (never stored)
 - `references/flow-examples/view-list.yaml` — navigate into a list and verify items render

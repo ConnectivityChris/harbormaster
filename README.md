@@ -11,7 +11,7 @@ When invoked, the skill:
 1. **Preflights** your machine (Xcode, Maestro, Android SDK)
 2. **Boots** an iOS simulator and/or Android emulator
 3. **Installs** your app — dev build, Expo Go deep-link, or already-installed
-4. **Pulls credentials** from macOS Keychain (or prompts and offers to store)
+4. **Reads any required credentials** from your shell environment, or prompts for them at the start of the run (the skill never stores credentials anywhere)
 5. **Runs** the Maestro flows in your project's `.maestro/` directory
 6. **Reports** pass/fail with screenshots, video, and JUnit XML for any failures
 
@@ -67,8 +67,7 @@ Add a `.maestro/` directory to your mobile project containing your flow files (Y
   },
   "expoGo": {
     "devServerUrl": "exp://192.168.1.10:8081"
-  },
-  "credsAccount": "example-app"
+  }
 }
 ```
 
@@ -85,8 +84,7 @@ mobile-flow-runner/
 │   ├── preflight.sh           # validate env
 │   ├── boot-sims.sh           # boot iOS sim + Android emulator
 │   ├── install-app.sh         # install dev build or open Expo Go
-│   ├── run-flows.sh           # run Maestro and capture artifacts
-│   └── keychain-creds.sh      # store/retrieve login creds in macOS Keychain
+│   └── run-flows.sh           # run Maestro and capture artifacts
 └── references/
     ├── writing-flows.md       # Maestro YAML cheat sheet
     ├── ios-setup.md           # Xcode + sim setup help
