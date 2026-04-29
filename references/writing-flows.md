@@ -168,45 +168,64 @@ For uniqueness, prefer slightly longer substrings:
 
 ## React Native + Maestro: making `testID` actually work
 
-`testID` is the right primary selector for tappable elements — it's deterministic and immune to layout shifts. But there's a subtlety on RN/iOS:
+`testID` is the right primary selector — deterministic, immune to layout shifts, doesn't change the user-facing UI. But on iOS, RN sometimes flattens descendants of an "accessibility container" parent into one bundled `accessibilityText` blob, which swallows the `testID` on every child. The fix is at the **container**, not at every child.
 
-| Component | Does `testID` get exposed to Maestro? |
-|---|---|
-| `<Pressable>`, `<Button>` (custom Pressable-based) | **Yes** — these are already discrete accessibility elements |
-| `<TextInput>` (bare, no `accessible`) | **No** — testID is dropped, placeholder gets bundled into parent's `accessibilityText` |
-| `<TextInput accessible>` (bare, accessible prop directly on it) | **Still no** — empirically verified; the parent's bundled accessibility container wins |
-| `<View accessible testID="..."><TextInput .../></View>` | **Yes** — wrapper becomes a discrete node and exposes the testID |
+### Recommended fix — disable accessibility flattening at the container
 
-The fix for `TextInput`: wrap it in a `<View accessible testID="...">`. The `accessible` prop on the **wrapper View** (not the TextInput itself) forces a single discrete accessibility node, exposing the `testID` as a `resource-id` Maestro can match. Setting `accessible` directly on the TextInput does not work — verified by adding bare `<TextInput accessible testID="...">` instances and observing they never surface in `maestro hierarchy` regardless.
-
-**Don't put testID directly on FormTextInput / Input / TextInput** — wrap it:
+If a screen wraps its content in a layout component (`KeyboardAvoidingView`, `SafeAreaView`, a custom `AuthLayout`, etc.) and child `testID`s are missing from `maestro hierarchy`, set `accessible={false}` on that container. Children become individually addressable in the accessibility tree, and bare `testID` props on `TextInput` work directly.
 
 ```tsx
-// WRONG — testID is silently dropped from Maestro's view
+// In your layout component (one place, fixes everything below it)
+<KeyboardAvoidingView
+  accessible={false}
+  behavior="padding"
+  ...
+>
+  {children}
+</KeyboardAvoidingView>
+```
+
+```tsx
+// In your form — bare testID, no wrapper needed
 <FormTextInput
   name="email"
   testID="email_input"
   ...
 />
-
-// RIGHT — wrapper View becomes the discrete accessibility element
-<View accessible testID="email_input">
-  <FormTextInput
-    name="email"
-    ...
-  />
-</View>
 ```
 
-Then in the flow:
-
 ```yaml
+# In the flow
 - tapOn:
     id: "email_input"
 - inputText: ${MAESTRO_USERNAME}
 ```
 
-Verify by running `maestro hierarchy` after a project reload — your testIDs should appear as `resource-id` entries.
+This is the **one-change-fixes-many** pattern: a single `accessible={false}` on a shared layout component unblocks `testID` for every input rendered inside that layout. Verified working: setting `accessible={false}` on a screen's wrapping layout component made bare `testID="email_input"` appear as a discrete `resource-id` without any per-input wrapping, and the login flow passed in 38s with bare testIDs on `FormTextInput`.
+
+### Fallback — per-input wrapper
+
+If you can't reach the offending container (third-party layout, deep tree, vendor code), wrap individual inputs in `<View accessible testID="...">`. The wrapper becomes its own accessibility element, exposing the `testID`:
+
+```tsx
+<View accessible testID="email_input">
+  <FormTextInput name="email" ... />
+</View>
+```
+
+This works but doesn't scale — every input needs its own wrapper. Prefer the container fix when it's available.
+
+### Empirical reference
+
+| Configuration | testID surfaces in `maestro hierarchy`? |
+|---|---|
+| `<Pressable testID="...">`, `<Button testID="...">` | **Yes** — Pressable is already a discrete accessibility element |
+| `<TextInput testID="...">` inside an `accessible` ancestor | **No** — the ancestor's bundled label wins |
+| `<TextInput testID="..." accessible>` inside an `accessible` ancestor | **Still no** — `accessible` on the TextInput itself doesn't break the ancestor's container |
+| `<TextInput testID="...">` inside a container marked `accessible={false}` | **Yes** — recommended fix |
+| `<View accessible testID="..."><TextInput .../></View>` | **Yes** — fallback when you can't change the container |
+
+Verify with `maestro hierarchy` after a project reload — your testIDs should appear as `resource-id` entries.
 
 ## Buttons that vanish mid-transition
 
