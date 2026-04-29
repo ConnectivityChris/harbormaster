@@ -4,6 +4,11 @@ All notable changes to mobile-flow-runner will be documented in this file. The f
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-04-29
+
+### Fixed
+- Plugin install error `Path escapes plugin directory: ./ (skills)` — `SKILL.md` moved from plugin root to `skills/mobile-flow-runner/SKILL.md`, matching the current Claude Code plugin loader's expected layout. `plugin.json` `skills` field now points at the subdirectory rather than `./`.
+
 ## [0.2.0] — 2026-04-29
 
 ### Added
@@ -48,6 +53,7 @@ Initial release. End-to-end validated against an Expo SDK 55 project on iOS 26.2
 - **Dev build over Expo Go** for regression suites — Expo Go's dev menus and popovers are documented as inner-loop only
 - **ASCII-only script output** — bash `set -u` misparses unicode glyphs adjacent to variable expansions
 
-[Unreleased]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ConnectivityChris/mobile-flow-runner/releases/tag/v0.1.0

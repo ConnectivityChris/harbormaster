@@ -137,8 +137,10 @@ mobile-flow-runner/
 ├── .claude-plugin/
 │   ├── plugin.json            # plugin manifest
 │   └── marketplace.json       # marketplace catalog (this repo doubles as its own marketplace)
-├── SKILL.md                   # the skill (loaded into Claude's context when triggered)
 ├── CHANGELOG.md               # release history
+├── skills/
+│   └── mobile-flow-runner/
+│       └── SKILL.md           # the skill (loaded into Claude's context when triggered)
 ├── commands/                  # slash commands wrapping the flow lifecycle
 │   ├── initflow.md            # /initflow — one-time project bootstrap
 │   ├── authorflow.md          # /authorflow — phased authoring loop for a single flow
