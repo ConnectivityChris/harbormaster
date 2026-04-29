@@ -37,7 +37,7 @@ case "${PLATFORM}-${SOURCE}" in
     ;;
   ios-expo-go)
     [[ -z "$DEV_URL" ]] && { echo "[err] --url required for expo-go (e.g. exp://192.168.1.10:8081)" >&2; exit 1; }
-    if ! xcrun simctl listapps booted 2>/dev/null | grep -q "host.exp.exponent"; then
+    if ! xcrun simctl listapps booted 2>/dev/null | grep -qi "host.exp.exponent"; then
       echo "[err] Expo Go is not installed on the booted iOS simulator." >&2
       echo "      The skill cannot install Expo Go for you (it's distributed via the App Store" >&2
       echo "      / Expo's CLI, not as a standalone .app)." >&2
@@ -57,7 +57,7 @@ case "${PLATFORM}-${SOURCE}" in
     ;;
   android-expo-go)
     [[ -z "$DEV_URL" ]] && { echo "[err] --url required for expo-go" >&2; exit 1; }
-    if ! adb shell pm list packages 2>/dev/null | grep -q "host.exp.exponent"; then
+    if ! adb shell pm list packages 2>/dev/null | grep -qi "host.exp.exponent"; then
       echo "[err] Expo Go is not installed on the running Android emulator." >&2
       echo "      Fix: in the terminal where 'expo start' / 'bun run dev' is running, press 'a'." >&2
       echo "      Expo CLI will install Expo Go onto the running emulator and open your project." >&2

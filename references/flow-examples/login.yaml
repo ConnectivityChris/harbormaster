@@ -7,13 +7,18 @@ tags:
 # The skill never stores them. Set them in your shell, or let the skill
 # prompt for them per run; either way they leave no persistent trace.
 
-- launchApp:
-    clearState: true
+- openLink: ${PROJECT_URL}
 - waitForAnimationToEnd
 
+- extendedWaitUntil:
+    visible:
+      text: ".*Log In.*"
+    timeout: 120000
+
 # Adapt these selectors to the app's actual login screen.
-# Prefer text or accessibilityLabel over coordinates.
-- tapOn: "Sign in"
+# Prefer testID / accessibilityLabel selectors when you can; fall back to
+# regex text matching because React Native bundles sibling Text into one
+# parent accessibilityText (see references/writing-flows.md).
 - tapOn:
     id: "email_input"
 - inputText: ${MAESTRO_USERNAME}
@@ -24,8 +29,10 @@ tags:
 - inputText: ${MAESTRO_PASSWORD}
 - hideKeyboard
 
-- tapOn: "Log in"
+- tapOn:
+    text: "Log In"
 - extendedWaitUntil:
-    visible: "${HOME_SCREEN_MARKER}"
-    timeout: 15000
+    visible:
+      text: ".*${HOME_SCREEN_TEXT}.*"
+    timeout: 30000
 - takeScreenshot: post-login

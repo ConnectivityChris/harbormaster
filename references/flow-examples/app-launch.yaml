@@ -2,9 +2,18 @@ appId: ${APP_ID}
 tags:
   - smoke
 ---
-- launchApp:
-    clearState: false
+# APP_ID is supplied at run time (see references/writing-flows.md):
+#   - host.exp.Exponent      Expo Go on iOS
+#   - host.exp.exponent      Expo Go on Android
+#   - <your bundle id>       native dev build / TestFlight / store build
+#
+# PROJECT_URL is the Expo dev server URL when running against Expo Go.
+# For native builds, set PROJECT_URL to a no-op deep link or remove the openLink step.
+
+- openLink: ${PROJECT_URL}
 - waitForAnimationToEnd
-- assertVisible:
-    text: "${HOME_SCREEN_MARKER}"
+- extendedWaitUntil:
+    visible:
+      text: ".*${HOME_SCREEN_TEXT}.*"
+    timeout: 120000
 - takeScreenshot: app-launch
