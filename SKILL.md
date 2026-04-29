@@ -63,21 +63,32 @@ Ask the user — or infer from project context (look for `app.json`, `app.config
 
 If the project has `<project>/.maestro/config.json`, read it for these defaults rather than asking. See [Project configuration](#project-configuration) below.
 
-### 3. Boot the simulator(s)
+### 3. Choose the target device
 
-Run `${CLAUDE_PLUGIN_ROOT}/scripts/boot-sims.sh <ios|android|both>`. This:
+Don't assume a default device — let the user pick. Run `${CLAUDE_PLUGIN_ROOT}/scripts/list-devices.sh <ios|android|both>` to enumerate available iOS simulators and Android AVDs, then present them to the user via `AskUserQuestion`.
 
-- Boots the first available iPhone simulator (or skips if already booted)
-- Starts an Android emulator from the first AVD (or skips if already running)
+Selection rules:
+- If the project config has `ios.preferredDevice` (matched by simulator name) or `android.preferredAvd`, use that and skip the prompt — but still mention which device was picked so the user can override.
+- If a single sim is already booted (or a single emulator is already running), use that and skip the prompt — switching mid-session adds friction for no benefit.
+- Otherwise prompt with the list. iOS options show `<name> — <runtime>` (e.g. `iPhone 17 Pro — iOS 26.2`); Android options show the AVD name. Pre-select the most recent runtime / first AVD as the recommended default.
+
+Capture the chosen `<udid>` (iOS) or `<avd-name>` (Android) and pass it to the next step. Optionally offer to write the choice into `<project>/.maestro/config.json` as `preferredDevice` / `preferredAvd` so the prompt is skipped on future runs.
+
+### 4. Boot the chosen device(s)
+
+Run `${CLAUDE_PLUGIN_ROOT}/scripts/boot-sims.sh <ios|android|both> [--ios-udid <udid>] [--avd <name>]`. This:
+
+- Boots the specified iPhone simulator (or skips if already booted)
+- Starts the specified Android emulator (or skips if already running)
 - Waits for `boot_completed` before returning
 
-### 4. Install the app
+### 5. Install the app
 
 Run `${CLAUDE_PLUGIN_ROOT}/scripts/install-app.sh --platform <p> --source <s> [--path <p>] [--url <u>]`.
 
 For Expo Go, the script uses `xcrun simctl openurl` (iOS) or `adb shell am start` (Android) to deep-link into the running dev server.
 
-### 5. Handle credentials (if flows need login)
+### 6. Handle credentials (if flows need login)
 
 **This skill never stores credentials.** Anything sensitive lives only in the user's environment for the duration of the run.
 
@@ -90,7 +101,7 @@ If a flow file references `${USERNAME}`, `${PASSWORD}`, or any other secret env 
 
 If a user wants persistent creds, they manage that themselves outside the skill — for example by exporting in their shell rc file or using `direnv` with a gitignored `.envrc`. The skill stays out of that boundary entirely.
 
-### 6. Run flows
+### 7. Run flows
 
 Run `${CLAUDE_PLUGIN_ROOT}/scripts/run-flows.sh --flows <path> --platform <p> [--env KEY=VAL ...]`.
 
@@ -100,7 +111,7 @@ The flows path is typically `<project>/.maestro/` — a directory of `.yaml` fil
 - Captures screenshots, video, and a JUnit XML report under `<project>/.maestro/artifacts/<run-id>/`
 - Returns non-zero if any flow fails
 
-### 7. Report
+### 8. Report
 
 Summarise pass/fail per flow per platform. On failure:
 
@@ -133,11 +144,13 @@ If the project has `<project>/.maestro/config.json`, read it for defaults:
 {
   "ios": {
     "bundleId": "com.example.app",
-    "devBuildPath": "ios/build/Build/Products/Debug-iphonesimulator/Example.app"
+    "devBuildPath": "ios/build/Build/Products/Debug-iphonesimulator/Example.app",
+    "preferredDevice": "iPhone 17 Pro"
   },
   "android": {
     "package": "com.example.app",
-    "devBuildPath": "android/app/build/outputs/apk/debug/app-debug.apk"
+    "devBuildPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+    "preferredAvd": "Pixel_8_Pro"
   },
   "expoGo": {
     "devServerUrl": "exp://192.168.1.10:8081"

@@ -59,11 +59,13 @@ Add a `.maestro/` directory to your mobile project containing your flow files (Y
 {
   "ios": {
     "bundleId": "com.example.app",
-    "devBuildPath": "ios/build/Build/Products/Debug-iphonesimulator/Example.app"
+    "devBuildPath": "ios/build/Build/Products/Debug-iphonesimulator/Example.app",
+    "preferredDevice": "iPhone 17 Pro"
   },
   "android": {
     "package": "com.example.app",
-    "devBuildPath": "android/app/build/outputs/apk/debug/app-debug.apk"
+    "devBuildPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+    "preferredAvd": "Pixel_8_Pro"
   },
   "expoGo": {
     "devServerUrl": "exp://192.168.1.10:8081"
@@ -82,7 +84,8 @@ mobile-flow-runner/
 ├── SKILL.md                   # the skill (loaded into Claude's context when triggered)
 ├── scripts/
 │   ├── preflight.sh           # validate env
-│   ├── boot-sims.sh           # boot iOS sim + Android emulator
+│   ├── list-devices.sh        # enumerate iOS sims and Android AVDs for picker
+│   ├── boot-sims.sh           # boot chosen iOS sim + Android emulator
 │   ├── install-app.sh         # install dev build or open Expo Go
 │   └── run-flows.sh           # run Maestro and capture artifacts
 └── references/
