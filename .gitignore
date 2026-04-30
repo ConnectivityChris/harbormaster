@@ -7,4 +7,6 @@
 # Local artifacts produced when validating against a real project
 .maestro/artifacts/
 .maestro/authoring-evidence/
+.maestro/.tour-plan.json
+.maestro/.tour-plan.archive.json
 **/test_output/
