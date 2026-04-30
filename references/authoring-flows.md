@@ -10,11 +10,11 @@ The skill exposes three slash commands for the lifecycle:
 | `/authorflow` | Per new flow, after init | Phases A–F (the loop below) |
 | `/stabiliseflow` | After authoring, before committing as a release-gate smoke | Repeated execution |
 
-## Init phase (`/initflow`)
+## Project discovery (shared)
 
-One-time bootstrap. Refuse to re-run if `.maestro/` already exists.
+Used by `/initflow` for one-time scaffolding and `/buildsuite` for tour-time candidate enumeration. Project-wide; for per-flow discovery during `/authorflow` see "Phase A — Discover" below.
 
-### 1. Discover
+### Reading the project
 
 Read these files (in order, stop early if you have enough signal):
 
@@ -27,7 +27,7 @@ Build a candidate list. Common ones:
 - `login` — only if auth detected
 - Per top-level route (home, settings, etc.) — usually `view-list` or similar
 
-### 2. Auth detection
+### Auth detection
 
 Conservative grep — only these signals count, no whole-codebase regex:
 
@@ -39,7 +39,19 @@ Conservative grep — only these signals count, no whole-codebase regex:
 
 Two or more signals = scaffold `login.yaml`. One signal = ask the user. Zero = skip.
 
-### 3. Confirm and scaffold
+## Init phase (`/initflow`)
+
+One-time bootstrap. Refuse to re-run if `.maestro/` already exists.
+
+### 1. Discover and detect auth
+
+See [Project discovery (shared)](#project-discovery-shared) above. After running discovery, build a candidate flow list. Common ones:
+
+- `app-launch` — always
+- `login` — only if auth detected
+- Per top-level route (home, settings, etc.) — usually `view-list` or similar
+
+### 2. Confirm and scaffold
 
 Use `AskUserQuestion` to confirm:
 - Detected `bundleId` / `package` (let user correct)
@@ -59,7 +71,7 @@ Append to `<project>/.gitignore` (or create if absent):
 .maestro/authoring-evidence/
 ```
 
-### 4. Hand off
+### 3. Hand off
 
 Tell the user the scaffolded flows are stubs — selectors point at common labels but probably don't match their app's actual UI yet. Recommend invoking `/authorflow app-launch` to walk through customising the first one.
 
