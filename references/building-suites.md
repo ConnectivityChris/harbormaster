@@ -145,7 +145,7 @@ Single JSON file at `<project>/.maestro/.tour-plan.json`, gitignored.
   "app_id": "com.example.myapp",
   "screens": {
     "login": {
-      "first_seen_step": 2,
+      "first_seen_step": 1,
       "screenshot": ".maestro/authoring-evidence/_tour/01-login.png",
       "selectors_unstable": false,
       "elements": [
@@ -188,6 +188,7 @@ Single JSON file at `<project>/.maestro/.tour-plan.json`, gitignored.
 
 - **`schema_version`** — day-one value `1`. Future schema changes bump this and migrate cleanly.
 - **`screens`** — first-class and shared across flows. Two flows that traverse `home` reference the same `screens.home` entry; selectors picked once, reused everywhere. This is the leverage that justifies the heavy plan.
+- **`first_seen_step`** — 1-based ordinal of the screenshot that first captured this screen during the tour. Aligned with the `<NN>-` prefix on the screenshot path so the two are easy to correlate.
 - **`screens.<name>.selectors_unstable`** — set to `true` when `maestro hierarchy` returned nothing useful during the tour (see "Tour-time" edge cases). Authoring uses text/visible-wait fallbacks for screens with this flag rather than relying on the (empty) selector cache. Default `false`.
 - **`selector.kind`** — one of `id` (testID / resource-id), `accessibility`, `text`, `regex`. Mirrors the priority order in `writing-flows.md`. No `coordinates` — refused by design.
 - **`status` enum** — `pending` -> `composed` -> `verified` -> `committed`, plus terminal states `skipped` and `failed`. Resume reads `status` to know which flows still need work.
