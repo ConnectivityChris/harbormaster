@@ -146,10 +146,13 @@ The skill ships three slash commands that cover the flow lifecycle. Use these as
 | Command | When to use | What it does |
 |---|---|---|
 | `/initflow` | Project has no `.maestro/` directory yet | One-time bootstrap — discovers the project, detects auth, scaffolds `.maestro/{config.json, README.md, app-launch.yaml, login.yaml?}` with the project's actual `appId` substituted in |
+| `/buildsuite` | After `/initflow`, when you want a real suite of flows fast | Guided tour — walks the running app once with the user, builds a shared selector + screen plan in `.tour-plan.json`, then loops over each planned flow with a per-flow checkpoint to compose, run, and commit. Reuses Phase D-F of `/authorflow` and the Tier 0/1/2 debug ladder for failed runs |
 | `/authorflow [flow-name]` | After init, adding a new flow | Phased loop — Discover → Interview → Walk-the-screens (one screenshot + `maestro hierarchy` per step) → Compose → Run once → Commit + update `.maestro/README.md` |
 | `/stabiliseflow <flow> [N]` | Before relying on a flow as a release-gate smoke | Runs the flow N times consecutively (default 3), reports flake rate, diagnoses non-deterministic failures |
 
 The full process — phase definitions, auth-detection grep patterns, selector-priority order, screenshot/hierarchy capture commands, README template — lives in `references/authoring-flows.md`. **Read it before authoring**, do not improvise.
+
+For `/buildsuite` specifically, the depth doc is `references/building-suites.md` — five phases (Discover & confirm → Guided tour → Plan materialisation → Authoring loop → Index & report), the `.tour-plan.json` schema, the coverage-checklist UX, and the edge cases. Read it before invoking the command. `/buildsuite` shares project-discovery logic with `/initflow` (extracted under "Project discovery (shared)" in `authoring-flows.md`) and reuses Phase D-F conventions from `/authorflow` for the per-flow deep dives.
 
 ### Stability bar
 
@@ -158,6 +161,10 @@ The full process — phase definitions, auth-detection grep patterns, selector-p
 ### Authoring evidence
 
 Phase C of `/authorflow` captures one screenshot per step into `<project>/.maestro/authoring-evidence/<flow>/`. These are gitignored but persisted on disk — useful when a flow breaks months later and someone wonders what the screen used to look like. Don't delete them at the end of authoring.
+
+### Tour plan
+
+`/buildsuite` writes its working plan to `<project>/.maestro/.tour-plan.json` between Phase 3 and Phase 5. The file is the persistence boundary for tour-derived data — once written, the user can quit and resume in a new session via `/buildsuite` (which detects an unfinished plan and offers to resume). On successful Phase 5 completion the plan is moved to `.tour-plan.archive.json` so a future invocation starts clean. Both files are gitignored. Schema in `references/building-suites.md` → "Plan schema".
 
 ### Selector priority (recap)
 
