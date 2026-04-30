@@ -121,9 +121,19 @@ When cutting a new version, do all of the following — no shortcuts:
 4. Commit the version bump (alongside the feature commits being released).
 5. **Push `main`**: `git push origin main`.
 6. **Tag and push the tag**: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-7. Verify the tag is visible on GitHub before announcing — `gh release view vX.Y.Z` or check the tags page.
+7. **Create the GitHub Release** so the changelog is discoverable in the GitHub UI and `release.published` webhooks fire. The body MUST be the matching CHANGELOG section verbatim — no hand-edits, no drift:
+   ```bash
+   body=$(awk -v ver="X.Y.Z" '
+     $0 ~ "^## \\[" ver "\\]" { flag=1; next }
+     flag && /^## \[/ { exit }
+     flag && /^\[Unreleased\]:/ { exit }
+     flag { print }
+   ' CHANGELOG.md)
+   gh release create vX.Y.Z --title "vX.Y.Z — YYYY-MM-DD" --notes "$body"
+   ```
+8. Verify with `gh release view vX.Y.Z`.
 
-Keep `plugin.json` `version` and the `CHANGELOG.md` release header in sync — drift between them breaks `/plugin marketplace add ...@vX.Y.Z` pinning.
+Keep `plugin.json` `version`, the `CHANGELOG.md` release header, the git tag, and the GitHub Release in lockstep — drift between them breaks `/plugin marketplace add ...@vX.Y.Z` pinning or misleads users browsing the repo. The CHANGELOG is the single source of truth for release notes; the GitHub Release body is sourced from it, never written independently.
 
 **No version edit to `marketplace.json` is needed.** The marketplace catalog uses `source: "./"` which resolves to whatever ref the user pins; the tag IS the version. Editing `marketplace.json` per release is a sign you're misunderstanding the model — stop and re-check.
 
