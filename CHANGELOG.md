@@ -4,6 +4,15 @@ All notable changes to mobile-flow-runner will be documented in this file. The f
 
 ## [Unreleased]
 
+### Added
+- `/buildsuite` slash command — fourth lifecycle command for building a core suite of flows in a single session. Walks the running app once with the user (a guided tour), builds a shared selector + screen plan persisted to `<project>/.maestro/.tour-plan.json`, then loops over each planned flow with a per-flow `[yes / skip / stop]` checkpoint to compose, run, and commit. Reuses `/initflow`'s project-discovery logic and `/authorflow`'s Phase D-F conventions. Full design in `docs/superpowers/specs/2026-04-30-buildsuite-design.md`; depth doc in `references/building-suites.md`.
+- `references/building-suites.md` — depth doc for `/buildsuite` (five phases, plan schema, coverage-checklist UX, edge cases).
+- `references/authoring-flows.md` — extracted "Project discovery (shared)" section reused by `/initflow` and `/buildsuite`.
+
+### Changed
+- `/initflow` now writes `.maestro/.tour-plan.json` and `.maestro/.tour-plan.archive.json` to the project's `.gitignore` alongside the existing `artifacts/` and `authoring-evidence/` entries.
+- `references/maestro-readme-template.md` — project READMEs scaffolded by `/initflow` now reference `/buildsuite` and the `.tour-plan.json` artefact.
+
 ## [0.2.2] — 2026-04-30
 
 ### Fixed
