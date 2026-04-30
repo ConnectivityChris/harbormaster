@@ -8,7 +8,7 @@ A **Claude Code skill packaged as a plugin** that orchestrates [Maestro](https:/
 
 Future agents working here are usually editing one of:
 - the skill orchestration logic (`SKILL.md`)
-- a slash command file in `commands/` (`initflow.md`, `authorflow.md`, `stabiliseflow.md`)
+- a slash command file in `commands/` (`initflow.md`, `buildsuite.md`, `authorflow.md`, `stabiliseflow.md`)
 - one of the five bash scripts in `scripts/`
 - a reference doc in `references/`
 - a starter flow in `references/flow-examples/`
@@ -18,16 +18,16 @@ Future agents working here are usually editing one of:
 
 Claude executes this skill in roughly the order encoded in `SKILL.md`. Four layers, each with a different load model:
 
-1. **`commands/*.md`** — slash command entry points (`/initflow`, `/authorflow`, `/stabiliseflow`). Loaded only when the user types the slash command. Each is a thin routing layer: YAML frontmatter (description, argument-hint, allowed-tools) plus a markdown prompt that delegates to the relevant phase in `SKILL.md` + `references/authoring-flows.md`. **Do not duplicate skill logic into the command file** — keep it pointing at the references.
+1. **`commands/*.md`** — slash command entry points (`/initflow`, `/buildsuite`, `/authorflow`, `/stabiliseflow`). Loaded only when the user types the slash command. Each is a thin routing layer: YAML frontmatter (description, argument-hint, allowed-tools) plus a markdown prompt that delegates to the relevant phase in `SKILL.md` + `references/authoring-flows.md`. **Do not duplicate skill logic into the command file** — keep it pointing at the references.
 2. **`skills/mobile-flow-runner/SKILL.md`** — loaded into Claude's context when the skill triggers (either by natural-language prompt or via a slash command). Holds the **decision-making and orchestration logic**: when to ask the user something, what defaults to use, how to react to script failures. Section ordering reflects runtime order (preflight → target → device → boot → install → creds → run → report). The skill **must** live under `skills/<skill-name>/` — the Claude Code plugin loader rejects `SKILL.md` at plugin root with `Path escapes plugin directory: ./ (skills)` (introduced in 0.2.1, see CHANGELOG).
 3. **`scripts/*.sh`** — invoked by Claude per `SKILL.md`. Each is single-purpose and side-effecting. Scripts only handle mechanics (boot the sim, install the app, run Maestro); they do not make user-facing decisions.
-4. **`references/*.md`** — loaded on-demand by Claude when it needs deeper detail (Maestro YAML cheat sheet, RN-specific gotchas, platform setup, the phased authoring loop). Treat as encyclopedic — `SKILL.md` and `commands/*.md` should *point at* references, not inline their content.
+4. **`references/*.md`** — loaded on-demand by Claude when it needs deeper detail (Maestro YAML cheat sheet, RN-specific gotchas, platform setup, the phased authoring loop, the multi-flow suite-building loop). Treat as encyclopedic — `SKILL.md` and `commands/*.md` should *point at* references, not inline their content.
 
 Scripts are addressed from `SKILL.md` as `${CLAUDE_PLUGIN_ROOT}/scripts/<name>.sh` — that env var is set by Claude Code when the plugin is loaded, so do not hard-code paths.
 
-### Why three slash commands
+### Why four slash commands
 
-The flow lifecycle has three distinct phases that need different behaviour: one-time project bootstrap, per-flow authoring, and stability hardening. Each maps to one slash command. They are intentionally narrow — `/initflow` refuses to run if `.maestro/` exists; `/authorflow` requires `.maestro/` to exist; `/stabiliseflow` requires the named flow file to exist. Don't merge them.
+The flow lifecycle has four distinct phases that need different behaviour: one-time project bootstrap, multi-flow suite building from a guided tour, per-flow authoring, and stability hardening. Each maps to one slash command. They are intentionally narrow — `/initflow` refuses to run if `.maestro/` exists; `/buildsuite` requires `.maestro/` and offers to resume an unfinished `.tour-plan.json` if one exists; `/authorflow` requires `.maestro/`; `/stabiliseflow` requires the named flow file to exist. Don't merge them. `/buildsuite` is the bulk-author path; `/authorflow` is the single-flow-at-a-time path — keep both, they cover different needs.
 
 ### Data flow at runtime
 
