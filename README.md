@@ -4,7 +4,7 @@ A Claude Code skill (packaged as a plugin) that runs scripted regression UI flow
 
 Built for the loop **"I made a change → did I break anything obvious?"** — before pushing a build to TestFlight, App Store, or Play Store.
 
-**Status:** v0.2.1 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
+**Status:** v0.2.2 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
 
 ## What it does
 
