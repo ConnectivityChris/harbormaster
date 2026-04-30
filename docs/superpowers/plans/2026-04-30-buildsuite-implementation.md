@@ -936,7 +936,7 @@ Expected: only the files listed in the "File structure" table at the top of this
 Run (in a separate Claude Code session, per `CLAUDE.md` validation workflow):
 
 ```bash
-claude --plugin-dir /Users/chris/dev/personal/mobile-flow-runner
+claude --plugin-dir ~/dev/mobile-flow-runner
 ```
 
 Verify in that session:

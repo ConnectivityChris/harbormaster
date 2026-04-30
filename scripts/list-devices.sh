@@ -4,6 +4,8 @@
 #
 # Usage: list-devices.sh [ios|android|both]   (default: both)
 
+# `set -u` (not -eu): empty xcrun/emulator output and missing AVDs are normal
+# states the script must continue past so it can report (none available) cleanly.
 set -u
 
 PLATFORM="${1:-both}"

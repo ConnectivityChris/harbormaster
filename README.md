@@ -149,6 +149,7 @@ mobile-flow-runner/
 │       └── SKILL.md           # the skill (loaded into Claude's context when triggered)
 ├── commands/                  # slash commands wrapping the flow lifecycle
 │   ├── initflow.md            # /initflow — one-time project bootstrap
+│   ├── buildsuite.md          # /buildsuite — guided tour + multi-flow authoring
 │   ├── authorflow.md          # /authorflow — phased authoring loop for a single flow
 │   └── stabiliseflow.md       # /stabiliseflow — multi-run flake detection
 ├── scripts/
@@ -159,6 +160,7 @@ mobile-flow-runner/
 │   └── run-flows.sh           # run Maestro and capture artifacts
 └── references/
     ├── authoring-flows.md     # phased loop process guide (init / author / stabilise)
+    ├── building-suites.md     # /buildsuite depth doc (tour-then-author lifecycle)
     ├── writing-flows.md       # Maestro YAML cheat sheet + RN-specific patterns
     ├── maestro-readme-template.md # onboarding-doc template for <project>/.maestro/README.md
     ├── ios-setup.md           # Xcode + sim setup help
@@ -167,7 +169,8 @@ mobile-flow-runner/
     └── flow-examples/         # generic starter flows
         ├── app-launch.yaml
         ├── login.yaml
-        └── view-list.yaml
+        ├── view-list.yaml
+        └── config.yaml        # Maestro workspace config template
 ```
 
 ## Releases

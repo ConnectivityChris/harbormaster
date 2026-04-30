@@ -5,6 +5,9 @@
 #                [--include-tags T,T] [--exclude-tags T,T] \
 #                [--env KEY=VAL ...]
 
+# `set -u` (not -eu): when --platform=both, an iOS failure must NOT abort the
+# Android run — both must execute so the final exit code reflects the union.
+# Switching to -eu would short-circuit on the first platform failure.
 set -u
 
 FLOWS=""
