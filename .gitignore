@@ -10,3 +10,7 @@
 .maestro/.tour-plan.json
 .maestro/.tour-plan.archive.json
 **/test_output/
+
+# Maestro `takeScreenshot:` defaults to CWD when no path is given —
+# guards against bench-run screenshots landing at repo root.
+/*.png

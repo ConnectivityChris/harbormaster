@@ -4,60 +4,63 @@ Items that need a real bench test before being implemented. Each entry should
 be runnable in isolation against a real project. Delete an entry once it lands
 or is confirmed not worth pursuing.
 
-## Parallel iOS + Android execution via Maestro device sharding
+## Parallel iOS + Android execution via Maestro device sharding — PARKED (2026-04-30)
 
-**Goal.** When `--platform both`, run iOS and Android in parallel rather than
-sequentially. Today `scripts/run-flows.sh:108-122` runs each platform in turn,
-making wall-time = `t_iOS + t_Android` instead of `max(t_iOS, t_Android)`.
+**Status.** Evaluated, not pursued. The sequential implementation in
+`scripts/run-flows.sh` (independent execution per platform with union exit
+code) is sufficient for the plugin's job: enable `--platform both`, surface
+per-platform pass/fail, leave flow-portability concerns to the flow author.
 
-**Approach to verify.**
+**Bench numbers** (Expo dev-build project, 2 flows, iPhone 17 Pro + Pixel 8 Pro):
 
-```bash
-maestro --device "$IOS_UDID,$ANDROID_SERIAL" test \
-  --shard-split 2 \
-  --output report.xml --format JUNIT \
-  --debug-output ./out --flatten-debug-output \
-  .maestro/
-```
+| Mode | Wall time | Notes |
+|---|---|---|
+| Sequential (`run-flows.sh --platform both`) | 176 s | Each platform runs in turn, independent exit codes |
+| Sharded (`maestro --device "$IOS,$ANDROID" test --shard-split 2`) | 104 s | 40 % improvement; bar was 30 % |
 
-Per `maestro test --help`:
-- `--device, --udid` accepts a comma-separated list.
-- `--shard-split N` distributes flows across `N` connected devices.
-- `--shard-all N` runs every flow on every device.
+**Why parked despite hitting the bar.** The 72-second saving applies only to
+the `--platform both` path, which is the rarer mode (most authoring is
+single-platform; cross-platform is a pre-release smoke). No user has reported
+sequential as a pain point. Implementing it would require a second code path
+in `run-flows.sh` (sharded artifacts use a co-mingled directory with shard-
+suffixed filenames rather than the current per-platform sub-dirs), plus an
+"Expo Go is incompatible with sharding" caveat in docs, plus the round-robin-
+flow-routing footgun discussed below. Maintenance surface > value at current
+usage. Revisit if `--platform both` becomes a frequent CI bottleneck.
 
-**Open questions to answer in the spike.**
+**Findings worth keeping** (regardless of whether sharding ever ships):
 
-1. Does Maestro segment its `--debug-output` per-device, or does it co-mingle
-   screenshots/recordings/logs from both devices into one directory? If
-   co-mingled, can `--flatten-debug-output` be safely combined with multi-device
-   runs, or do we need separate output dirs per device?
-2. JUnit `report.xml` — single file with both devices, or one per device? If
-   single, are test cases tagged with device id so a CI consumer can tell
-   which platform a failure came from?
-3. What happens if one device disconnects mid-run — does the surviving device
-   complete its shard, or does the whole invocation fail? **Bar to clear:** the
-   sequential implementation is already tolerant — `scripts/run-flows.sh` runs
-   each platform independently and unions the exit codes (see the `set -u`
-   header comment), and `scripts/boot-sims.sh` does the same for boot. A
-   sharded implementation that aborts the surviving device on a peer disconnect
-   would be a regression.
-4. Are there flow-author footguns? E.g. `clearKeychain` is iOS-only — does it
-   silently no-op on Android, or fail the flow when sharded onto an Android
-   device? **Partially answered (2026-04-30):** in single-device runs Maestro
-   logs a "command unsupported" warning on Android and continues; templates in
-   `references/flow-examples/login.yaml` and the patterns in
-   `references/writing-flows.md` now gate `clearKeychain` behind
-   `runFlow: when: platform: iOS` so the warning is suppressed and Android
-   relies on `launchApp clearState: true`. The remaining sharded-run question
-   is whether the gated form still picks the right branch when a single flow
-   is sharded across both devices simultaneously — verify in the spike.
+1. **Artifact recovery (Q1).** `--debug-output <dir> --flatten-debug-output` co-
+   mingles files but uses consistent per-shard naming:
+   `commands-shard-N-(<flow>).json`, `screenshot-shard-N-…-(<flow>).png`.
+   `maestro.log` is a single file with `[shard N]` line prefixes. Splittable
+   by filename pattern.
+2. **JUnit (Q2).** Single `report.xml` with one `<testsuite device="…">`
+   element per device — the `device=` attribute carries platform + UDID/AVD
+   name. CI consumers can split per-platform on this attribute. `<failure>`
+   text is `[shard N]` prefixed.
+3. **Disconnect tolerance (Q3).** Not exercised. The sequential implementation
+   is already disconnect-tolerant (one platform's failure doesn't abort the
+   other); a sharded implementation that aborts the surviving device on a peer
+   disconnect would be a regression.
+4. **Footguns (Q4).**
+   - **Expo Go is sharding-incompatible.** A single `--env APP_ID=…` value
+     can't carry two divergent bundle IDs (iOS `host.exp.Exponent` vs Android
+     `host.exp.exponent`). Hard launch failure on the wrong-platform shard.
+   - **Dev builds shard cleanly** when `bundleId == package` (the common case
+     for RN/Expo).
+   - **Round-robin flow-to-shard routing**, not platform-aware. Maestro
+     assigns flows to shards by index against the `--device "id1,id2"` list.
+     A flow with platform-specific commands without `runFlow: when: platform:`
+     gating will fail when routed onto the wrong platform. The cross-platform
+     templates in `references/flow-examples/login.yaml` and patterns in
+     `references/writing-flows.md` already encode this.
+   - **Flow ordering can no longer be relied on for state setup.** Sequential
+     mode lets users put `login.yaml` before `view-settings.yaml` and have
+     logged-in state carry over. Sharded mode breaks this. Self-sufficient
+     flows (their own `clearState` + gated `clearKeychain`) are required.
 
-**Decision criterion.** If wall-time improves by >30% on the validation project
-(Expo SDK 55 + iOS 26.2 + Android API 33) and per-device artifacts are
-recoverable from the output directory, ship it. Otherwise document why not and
-keep the sequential implementation.
-
-**Files that will change if it lands.** `scripts/run-flows.sh` (replace the
-`run_one` per-platform invocation with a single sharded invocation when both
-devices are present), `references/troubleshooting.md` (artifact paths if they
-move).
+**Files that would change if revived.** `scripts/run-flows.sh` (sharded code
+path when both devices booted), `references/troubleshooting.md` (artifact
+layout doc), `references/writing-flows.md` (Expo Go incompatibility
+footnote), `skills/harbormaster/SKILL.md` (run-flow step rewrite).

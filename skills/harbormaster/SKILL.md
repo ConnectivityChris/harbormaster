@@ -73,12 +73,14 @@ If the project has `<project>/.maestro/config.json`, read it for these defaults 
 
 Don't assume a default device — let the user pick. Run `${CLAUDE_PLUGIN_ROOT}/scripts/list-devices.sh <ios|android|both>` to enumerate available iOS simulators and Android AVDs, then present them to the user via `AskUserQuestion`.
 
+When `platform = both`, you need **one of each** — an iOS sim and an Android AVD. Run the picker for each platform in turn (or merge into a single two-question prompt). Don't try to substitute one for the other if a platform's pick is unavailable; either fix the missing platform or downgrade to single-platform mode and tell the user.
+
 Selection rules:
 - If the project config has `ios.preferredDevice` (matched by simulator name) or `android.preferredAvd`, use that and skip the prompt — but still mention which device was picked so the user can override.
-- If a single sim is already booted (or a single emulator is already running), use that and skip the prompt — switching mid-session adds friction for no benefit.
+- If a single sim is already booted (or a single emulator is already running), use that and skip the prompt — switching mid-session adds friction for no benefit. With `platform = both`, this rule applies per-platform: e.g. an already-booted iOS sim is auto-selected while the Android AVD still needs a pick.
 - Otherwise prompt with the list. iOS options show `<name> — <runtime>` (e.g. `iPhone 17 Pro — iOS 26.2`); Android options show the AVD name. Pre-select the most recent runtime / first AVD as the recommended default.
 
-Capture the chosen `<udid>` (iOS) or `<avd-name>` (Android) and pass it to the next step. Optionally offer to write the choice into `<project>/.maestro/config.json` as `preferredDevice` / `preferredAvd` so the prompt is skipped on future runs.
+Capture the chosen `<udid>` (iOS) and/or `<avd-name>` (Android) and pass them to the next step. Optionally offer to write the choice into `<project>/.maestro/config.json` as `preferredDevice` / `preferredAvd` so the prompt is skipped on future runs.
 
 ### 4. Boot the chosen device(s)
 
@@ -91,6 +93,10 @@ Run `${CLAUDE_PLUGIN_ROOT}/scripts/boot-sims.sh <ios|android|both> [--ios-udid <
 ### 5. Install the app
 
 Run `${CLAUDE_PLUGIN_ROOT}/scripts/install-app.sh --platform <p> --source <s> [--path <p>] [--url <u>]`.
+
+`install-app.sh` takes one platform per invocation. When `platform = both`, **call it twice** — once with `--platform ios` and once with `--platform android` — using the per-platform `devBuildPath` (and, for Expo Go, the same dev server URL for both). Surface a per-platform pass/fail to the user so they know which install succeeded if one of them errors.
+
+**Cross-platform footgun for Expo Go**: the `APP_ID` env var passed at run time is *one* value, but Expo Go's bundle ID differs by platform (`host.exp.Exponent` on iOS, `host.exp.exponent` on Android — capital E matters). On a `--platform both` run targeting Expo Go, neither value works for the other device. Recommend dev builds whenever the user asks for `both`; if they insist on Expo Go for `both`, run each platform sequentially with a single-platform invocation rather than trying to share an APP_ID.
 
 For Expo Go, the script uses `xcrun simctl openurl` (iOS) or `adb shell am start` (Android) to deep-link into the running dev server.
 
