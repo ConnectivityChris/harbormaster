@@ -72,6 +72,8 @@ Append to `<project>/.gitignore` (or create if absent):
 ```
 .maestro/artifacts/
 .maestro/authoring-evidence/
+.maestro/.tour-plan.json
+.maestro/.tour-plan.archive.json
 ```
 
 ### 3. Hand off

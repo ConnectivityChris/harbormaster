@@ -25,7 +25,7 @@ Follow `references/authoring-flows.md` → "Init phase" for the full procedure. 
    - `app-launch.yaml` — copied from `references/flow-examples/app-launch.yaml`, `appId` substituted
    - `login.yaml` — copied from `references/flow-examples/login.yaml`, `appId` substituted (only if auth detected)
 
-6. **Update `.gitignore`** if needed: add `.maestro/artifacts/` and `.maestro/authoring-evidence/`.
+6. **Update `.gitignore`** if needed: add `.maestro/artifacts/`, `.maestro/authoring-evidence/`, `.maestro/.tour-plan.json`, and `.maestro/.tour-plan.archive.json`.
 
 7. **Suggest next steps.** Tell the user: scaffolded flows are stubs and need their app's actual selectors. Recommend running `/authorflow` to walk through customising one, starting with `app-launch`.
 
