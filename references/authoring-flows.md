@@ -7,8 +7,11 @@ The skill exposes three slash commands for the lifecycle:
 | Command | When | Phase |
 |---|---|---|
 | `/initflow` | Once per project, no `.maestro/` exists yet | Init (scaffold) |
+| `/buildsuite` | After init, when you want a working suite of flows fast | One guided tour → N flows authored sequentially with per-flow checkpoints |
 | `/authorflow` | Per new flow, after init | Phases A–F (the loop below) |
 | `/stabiliseflow` | After authoring, before committing as a release-gate smoke | Repeated execution |
+
+For `/buildsuite` — the multi-flow tour-then-author lifecycle — see `building-suites.md`. It reuses the project-discovery logic below (Phase 1 of `/buildsuite`) and the per-flow Compose/Run/Commit conventions from `/authorflow` (Phase 4 of `/buildsuite`).
 
 ## Project discovery (shared)
 
