@@ -70,6 +70,7 @@ Once installed, three slash commands cover the flow lifecycle:
 | Command | When |
 |---|---|
 | `/initflow` | First time using the skill on a project — scaffolds `.maestro/` with starter flows tuned to your project |
+| `/buildsuite` | After `/initflow` — build a core suite of flows in one session via a guided tour of the app + per-flow authoring checkpoints. See `commands/buildsuite.md` |
 | `/authorflow [flow-name]` | Adding a new flow — guided interview, screen capture, selector picking, compose, run |
 | `/stabiliseflow <flow> [N]` | Hardening a flow before relying on it as a release gate — runs N times, reports flake rate |
 
