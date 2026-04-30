@@ -131,6 +131,12 @@ Keep `plugin.json` `version` and the `CHANGELOG.md` release header in sync — d
 
 Users install via `/plugin marketplace add ConnectivityChris/mobile-flow-runner@vX.Y.Z`. That resolution chain reads `marketplace.json` from the tag, then loads `plugin.json` and the rest of the plugin contents from that tag. If the tag doesn't exist, install fails. If `plugin.json` and the tag disagree on version, the user gets confusing diagnostics. If `main` is pushed but the tag isn't, the install command falls back to HEAD silently — users get unreleased code thinking they pinned a version.
 
+## Conventions
+
+- **Commit messages**: short conventional-commit form (`fix(plugin): ...`, `feat(commands): ...`). No body unless genuinely needed. **Do not add `Co-Authored-By:` trailers** — user removes them.
+- **UK English** in all committed text — `stabilise`, `behaviour`, `colour`, `prioritise`, etc. Slash command names follow this (`/stabiliseflow`, not `/stabilizeflow`).
+- **Project-agnostic docs** — no references to specific external projects (e.g. real app names) in `SKILL.md`, `README.md`, `references/`, or `commands/`. CHANGELOG entries describing past validation environments may use generic descriptions ("Expo SDK 55 project on iOS 26.2") but never name the project.
+
 ## Editing guidance
 
 - **Adding a new flow example**: keep it generic (no project-specific bundle IDs, no real user data). Use `${APP_ID}` for cross-platform parameterisation. Reference it from `SKILL.md`'s "Reference index" section so future Claude knows it exists.
