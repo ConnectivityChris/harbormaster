@@ -4,6 +4,8 @@ All notable changes to mobile-flow-runner will be documented in this file. The f
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-04-30
+
 ### Added
 - `/buildsuite` slash command — fourth lifecycle command for building a core suite of flows in a single session. Walks the running app once with the user (a guided tour), builds a shared selector + screen plan persisted to `<project>/.maestro/.tour-plan.json`, then loops over each planned flow with a per-flow `[yes / skip / stop]` checkpoint to compose, run, and commit. Reuses `/initflow`'s project-discovery logic and `/authorflow`'s Phase D-F conventions. Full design in `docs/superpowers/specs/2026-04-30-buildsuite-design.md`; depth doc in `references/building-suites.md`.
 - `references/building-suites.md` — depth doc for `/buildsuite` (five phases, plan schema, coverage-checklist UX, edge cases).
@@ -12,6 +14,7 @@ All notable changes to mobile-flow-runner will be documented in this file. The f
 - `references/authoring-flows.md` — extracted a shared "Project discovery (shared)" section, now reused by both `/initflow` and `/buildsuite` (refactor; meaning preserved).
 - `/initflow` now writes `.maestro/.tour-plan.json` and `.maestro/.tour-plan.archive.json` to the project's `.gitignore` alongside the existing `artifacts/` and `authoring-evidence/` entries.
 - `references/maestro-readme-template.md` — project READMEs scaffolded by `/initflow` now reference `/buildsuite` and the `.tour-plan.json` artefact.
+- `README.md` and `skills/mobile-flow-runner/SKILL.md` — refreshed lifecycle docs to describe four slash commands instead of three.
 
 ## [0.2.2] — 2026-04-30
 
@@ -84,7 +87,8 @@ Initial release. End-to-end validated against an Expo SDK 55 project on iOS 26.2
 - **Dev build over Expo Go** for regression suites — Expo Go's dev menus and popovers are documented as inner-loop only
 - **ASCII-only script output** — bash `set -u` misparses unicode glyphs adjacent to variable expansions
 
-[Unreleased]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.1.0...v0.2.0
