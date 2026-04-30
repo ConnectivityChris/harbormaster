@@ -133,7 +133,7 @@ appId: com.example.app
 
 ## Tips for non-flaky flows
 
-1. **Prefer text and accessibility-label selectors over IDs**, and IDs over coordinates. Coordinates are screen-size-dependent and brittle.
+1. **Prefer `testID` / `id` over accessibility-label, accessibility-label over text, text over coordinates.** Text changes when labels are reworded or the app is translated; coordinates break on different screen sizes. testIDs are deterministic and immune to UI copy changes.
 2. **In React Native, use regex text selectors** — see the next section.
 3. **Wait for animations** explicitly (`waitForAnimationToEnd`) rather than sleeping.
 4. **Use `extendedWaitUntil`** for slow loads instead of `assertVisible` immediately after a network action.
@@ -346,7 +346,7 @@ Filter to the fields that matter (text, ids, enabled state) to keep token cost l
 
 ```bash
 maestro --device <udid-or-serial> hierarchy \
-  | jq '.. | objects | {text, "resource-id", enabled} | select(.text or ."resource-id")'
+  | jq '.. | objects | {text, "resource-id", "accessibility-label", enabled} | select(.text or ."resource-id" or ."accessibility-label")'
 ```
 
 When **debugging a failed flow**, prefer `maestro hierarchy` over screenshots — see `troubleshooting.md` → "Efficient debugging" for the cost tiering.

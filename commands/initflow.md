@@ -19,7 +19,8 @@ Follow `references/authoring-flows.md` → "Init phase" for the full procedure. 
 4. **Confirm with the user.** Use `AskUserQuestion` to confirm: bundleId, package, scaffolded flows. Let them opt out of any individual flow.
 
 5. **Scaffold.** Write to `<project>/.maestro/`:
-   - `config.json` — populated from discovered values
+   - `config.json` — the **skill's** config (bundleId, devBuildPath, preferredDevice). Populated from discovered values.
+   - `config.yaml` — the **Maestro workspace** config. Copy from `references/flow-examples/config.yaml`. Two different files with overlapping names; both belong here.
    - `README.md` — using the template at `references/maestro-readme-template.md`, with project-specific values substituted
    - `app-launch.yaml` — copied from `references/flow-examples/app-launch.yaml`, `appId` substituted
    - `login.yaml` — copied from `references/flow-examples/login.yaml`, `appId` substituted (only if auth detected)

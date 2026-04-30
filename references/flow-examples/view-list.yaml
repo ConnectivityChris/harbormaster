@@ -1,9 +1,14 @@
 appId: ${APP_ID}
 tags:
   - smoke
+  - navigation
 ---
-# Assumes the app is already on a home/root screen with a list (e.g. conversations,
-# inbox, feed). Run after login.yaml or with launchApp inline.
+# Assumes the app reaches a home/root screen with a list (e.g. conversations,
+# inbox, feed) on launch. If your app requires login first, prepend a
+# `runFlow: login.yaml` step instead of `launchApp`.
+
+- launchApp
+- waitForAnimationToEnd
 
 - assertVisible: "${LIST_HEADING}"
 - assertVisible:

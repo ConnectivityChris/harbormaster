@@ -36,7 +36,12 @@ maestro test .maestro/login.yaml
 
 ## Configuration
 
-`.maestro/config.json` holds project defaults — bundleId, package, preferred device, dev build paths. Edit there rather than per-flow.
+Two files live under `.maestro/`:
+
+- `config.json` — **skill** config. Bundle ID, package, preferred device, dev-build paths. Read by mobile-flow-runner so the picker and install steps know your defaults.
+- `config.yaml` — **Maestro workspace** config. Read by `maestro test`. Controls flow discovery, `executionOrder` for dependent flows, workspace-level tag filters, and `onFlowStart`/`onFlowComplete` hooks. Edit this when you want shared setup/teardown across flows.
+
+The names overlap; the contents do not. Both belong in the directory.
 
 ## Environment variables
 

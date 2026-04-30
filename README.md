@@ -4,7 +4,7 @@ A Claude Code skill (packaged as a plugin) that runs scripted regression UI flow
 
 Built for the loop **"I made a change → did I break anything obvious?"** — before pushing a build to TestFlight, App Store, or Play Store.
 
-**Status:** v0.1.0 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
+**Status:** v0.2.1 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
 
 ## What it does
 
@@ -27,7 +27,7 @@ When invoked, the skill:
 ## Expo Go vs dev build
 
 - **Dev build** (`bunx expo run:ios` / `:android`) is the **recommended target for regression runs**. No Expo Go overlays, no dev tools popovers, no cold-reload tax — flows run hands-off.
-- **Expo Go** is fine for inner-loop "did I break the launch?" checks but not for hands-off automation: dev menus, "What's new" sheets, and permission prompts can interrupt flows and require manual taps. Treat it as a fast feedback loop, not a CI target.
+- **Expo Go** is fine for inner-loop "did I break the launch?" checks but not for hands-off automation: dev menus, "What's new" sheets, and permission prompts can interrupt flows and require manual taps. Treat it as a fast feedback loop, not a release-gate.
 
 ## Install
 
@@ -47,7 +47,12 @@ claude plugin install mobile-flow-runner@connectivity-chris
 
 ### Versioning
 
-The plugin declares its version in `.claude-plugin/plugin.json`. Users installed from the marketplace stay on whatever version is declared at HEAD of `main` and only receive an update when that field is bumped. There's no need to pin to a tag in the install command — the `version` field is itself the pin. Tags exist for release tracking (`mobile-flow-runner--v0.1.0`) but aren't required to use the plugin.
+The plugin declares its version in `.claude-plugin/plugin.json`. Two install modes:
+
+- **Track HEAD**: `/plugin marketplace add ConnectivityChris/mobile-flow-runner` — you get whatever version is at HEAD of `main`. Updates land when you next sync.
+- **Pin to a release**: `/plugin marketplace add ConnectivityChris/mobile-flow-runner@vX.Y.Z` — pinned to a specific tag. Recommended for stable workflows.
+
+Pinning to a tag is the canonical path for users who want predictable behaviour. HEAD is fine if you're following along with development.
 
 ### Local development
 

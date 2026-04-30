@@ -15,7 +15,7 @@ Follow the **phased authoring loop** in `references/authoring-flows.md`. Summary
 - **Phase C — Walk the screens.** Booted sim/emulator must be ready (run `/initflow`'s preflight if not). For each step in the journey:
   1. Drive the app to the relevant screen (manual taps via the user, or automated via Maestro from prior steps).
   2. Take **one** screenshot (`xcrun simctl io booted screenshot <path>` for iOS, `adb exec-out screencap -p > <path>` for Android), saving to `<project>/.maestro/authoring-evidence/<flow-name>/<step-name>.png`.
-  3. Run `maestro --device <udid-or-serial> hierarchy | jq '.. | objects | {text, "resource-id", enabled} | select(.text or ."resource-id")'` to inspect selectors as text.
+  3. Run `maestro --device <udid-or-serial> hierarchy | jq '.. | objects | {text, "resource-id", "accessibility-label", enabled} | select(.text or ."resource-id" or ."accessibility-label")'` to inspect selectors as text.
   4. Pick the most stable selector (testID > accessibility-label > text > coordinates). Note *why* it was chosen.
 - **Phase D — Compose.** Write `<project>/.maestro/<flow-name>.yaml` with `appId: ${APP_ID}`, the picked selectors, and a header comment per step naming the screen and the user's intent. Use `references/flow-examples/` as a template if relevant.
 - **Phase E — Run once.** Invoke `${CLAUDE_PLUGIN_ROOT}/scripts/run-flows.sh --flows <project>/.maestro/<flow-name>.yaml --platform <p>`. **One-run stability bar** — if it passes, ship it. If it fails, drop into the Tier 0/1/2 debug protocol from `references/troubleshooting.md` and iterate.

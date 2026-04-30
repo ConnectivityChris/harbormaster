@@ -1,13 +1,17 @@
 #!/bin/bash
 # Run Maestro flows against booted simulators and capture artifacts.
 # Usage:
-#   run-flows.sh --flows <path> --platform <ios|android|both> [--output <dir>] [--env KEY=VAL ...]
+#   run-flows.sh --flows <path> --platform <ios|android|both> [--output <dir>] \
+#                [--include-tags T,T] [--exclude-tags T,T] \
+#                [--env KEY=VAL ...]
 
 set -u
 
 FLOWS=""
 PLATFORM="both"
 OUTPUT_DIR=""
+INCLUDE_TAGS=""
+EXCLUDE_TAGS=""
 ENV_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -15,13 +19,15 @@ while [[ $# -gt 0 ]]; do
     --flows) FLOWS="$2"; shift 2 ;;
     --platform) PLATFORM="$2"; shift 2 ;;
     --output) OUTPUT_DIR="$2"; shift 2 ;;
+    --include-tags) INCLUDE_TAGS="$2"; shift 2 ;;
+    --exclude-tags) EXCLUDE_TAGS="$2"; shift 2 ;;
     --env) ENV_ARGS+=("--env" "$2"); shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
 
 if [[ -z "$FLOWS" ]]; then
-  echo "Usage: $0 --flows <path> --platform <ios|android|both> [--output <dir>] [--env KEY=VAL ...]" >&2
+  echo "Usage: $0 --flows <path> --platform <ios|android|both> [--output <dir>] [--include-tags T,T] [--exclude-tags T,T] [--env KEY=VAL ...]" >&2
   exit 1
 fi
 
@@ -36,6 +42,10 @@ if [[ -z "$OUTPUT_DIR" ]]; then
 fi
 mkdir -p "$OUTPUT_DIR"
 
+TAG_ARGS=()
+[[ -n "$INCLUDE_TAGS" ]] && TAG_ARGS+=("--include-tags" "$INCLUDE_TAGS")
+[[ -n "$EXCLUDE_TAGS" ]] && TAG_ARGS+=("--exclude-tags" "$EXCLUDE_TAGS")
+
 run_one() {
   local label="$1"
   local device_arg="$2"
@@ -44,11 +54,25 @@ run_one() {
 
   echo "[*] Running flows on $label..."
   if [[ -n "$device_arg" ]]; then
-    maestro --device "$device_arg" test "${ENV_ARGS[@]}" \
-      --output "$out/report.xml" --format junit "$FLOWS" 2>&1 | tee "$out/run.log"
+    maestro --device "$device_arg" test \
+      "${ENV_ARGS[@]}" \
+      "${TAG_ARGS[@]}" \
+      --output "$out/report.xml" \
+      --format JUNIT \
+      --test-suite-name "mobile-flow-runner-$RUN_ID-$label" \
+      --debug-output "$out" \
+      --flatten-debug-output \
+      "$FLOWS" 2>&1 | tee "$out/run.log"
   else
-    maestro test "${ENV_ARGS[@]}" \
-      --output "$out/report.xml" --format junit "$FLOWS" 2>&1 | tee "$out/run.log"
+    maestro test \
+      "${ENV_ARGS[@]}" \
+      "${TAG_ARGS[@]}" \
+      --output "$out/report.xml" \
+      --format JUNIT \
+      --test-suite-name "mobile-flow-runner-$RUN_ID-$label" \
+      --debug-output "$out" \
+      --flatten-debug-output \
+      "$FLOWS" 2>&1 | tee "$out/run.log"
   fi
   local rc=${PIPESTATUS[0]}
   if [[ $rc -eq 0 ]]; then

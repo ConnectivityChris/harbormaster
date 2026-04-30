@@ -26,6 +26,9 @@ boot_ios() {
       | head -n1 \
       | grep -oE '\([A-F0-9-]{36}\)' \
       | tr -d '()' || true)
+    if [[ -n "$udid" ]]; then
+      echo "[warn] No --ios-udid passed; falling back to first available iPhone simulator ($udid)"
+    fi
   fi
   if [[ -z "$udid" ]]; then
     echo "[err] No iPhone simulator available" >&2
@@ -46,6 +49,9 @@ boot_android() {
   local avd="$AVD_NAME"
   if [[ -z "$avd" ]]; then
     avd=$(emulator -list-avds 2>/dev/null | head -n1 || true)
+    if [[ -n "$avd" ]]; then
+      echo "[warn] No --avd passed; falling back to first listed AVD ($avd)"
+    fi
   fi
   if [[ -z "$avd" ]]; then
     echo "[err] No AVD configured" >&2

@@ -1,0 +1,23 @@
+# Maestro workspace configuration.
+# This is a Maestro-native file (different from .maestro/config.json which is
+# the skill's own config). Maestro reads this when you run `maestro test` against
+# the directory; it controls flow discovery, ordering, and lifecycle hooks.
+#
+# Docs: https://docs.maestro.dev/workspace-management/project-configuration
+
+# Glob of flow files to include. Default picks up every .yaml in this dir.
+flows:
+  - "*.yaml"
+
+# Order matters for dependent flows. Login must run before view-list if
+# view-list assumes an authenticated session. Add entries here as flows land.
+# executionOrder:
+#   flowsOrder:
+#     - login
+#     - view-list
+
+# Workspace-level tag filters. Override at the CLI with --include-tags / --exclude-tags.
+# includeTags:
+#   - smoke
+# excludeTags:
+#   - wip

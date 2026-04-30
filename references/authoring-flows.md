@@ -47,7 +47,8 @@ Use `AskUserQuestion` to confirm:
 - iOS preferred device, if a sim is currently booted
 
 Write to `<project>/.maestro/`:
-- `config.json` — populated from discovered values
+- `config.json` — **skill's** config (bundleId, devBuildPath, preferredDevice). Populated from discovered values.
+- `config.yaml` — **Maestro workspace** config. Copy from `references/flow-examples/config.yaml`. Maestro reads this when running `maestro test .maestro/`; it controls flow discovery, ordering, and tag filters. Note: `config.json` (skill) and `config.yaml` (Maestro) are two different files with overlapping names — both belong here.
 - `README.md` — copy from `references/maestro-readme-template.md`, substitute project values
 - `app-launch.yaml` — copy from `references/flow-examples/app-launch.yaml`, substitute `appId`
 - `login.yaml` — only if auth confirmed
@@ -107,7 +108,7 @@ For each step in the user's journey:
 3. **Dump the hierarchy** for selector picking — text, cheap, grep-able:
    ```bash
    maestro --device <udid-or-serial> hierarchy \
-     | jq '.. | objects | {text, "resource-id", enabled} | select(.text or ."resource-id")'
+     | jq '.. | objects | {text, "resource-id", "accessibility-label", enabled} | select(.text or ."resource-id" or ."accessibility-label")'
    ```
 
 4. **Pick the most stable selector.** Priority order:

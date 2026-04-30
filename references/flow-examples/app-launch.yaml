@@ -7,13 +7,16 @@ tags:
 #   - host.exp.exponent      Expo Go on Android
 #   - <your bundle id>       native dev build / TestFlight / store build
 #
-# PROJECT_URL is the Expo dev server URL when running against Expo Go.
-# For native builds, set PROJECT_URL to a no-op deep link or remove the openLink step.
+# This flow defaults to the native dev-build path (launchApp clearState).
+# For Expo Go, replace `launchApp` with `openLink: ${PROJECT_URL}` and bump
+# the timeout to 120000ms — cold bundle compile can take 60-120s on first
+# run. See the Expo Go section of references/writing-flows.md.
 
-- openLink: ${PROJECT_URL}
+- launchApp:
+    clearState: true
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: ".*${HOME_SCREEN_TEXT}.*"
-    timeout: 120000
+    timeout: 30000
 - takeScreenshot: app-launch

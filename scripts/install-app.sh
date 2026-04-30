@@ -5,6 +5,7 @@
 #   install-app.sh --platform ios --source expo-go --url exp://192.168.x.x:8081
 #   install-app.sh --platform android --source dev-build --path <path-to-.apk>
 #   install-app.sh --platform android --source expo-go --url exp://192.168.x.x:8081
+#   install-app.sh --platform <p> --source installed   (no-op; app already installed)
 
 set -eu
 
@@ -29,6 +30,10 @@ if [[ -z "$PLATFORM" || -z "$SOURCE" ]]; then
 fi
 
 case "${PLATFORM}-${SOURCE}" in
+  ios-installed|android-installed)
+    echo "[ok] App already installed; skipping install step ($PLATFORM)"
+    exit 0
+    ;;
   ios-dev-build)
     [[ -z "$APP_PATH" ]] && { echo "[err] --path required for dev-build" >&2; exit 1; }
     [[ ! -d "$APP_PATH" && ! -f "$APP_PATH" ]] && { echo "[err] App not found: $APP_PATH" >&2; exit 1; }

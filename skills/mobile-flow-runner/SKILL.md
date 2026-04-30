@@ -20,7 +20,6 @@ Drive iOS simulators and Android emulators with scripted [Maestro](https://maest
 - Unit / component tests — use Jest, Bun test, Vitest, or the project's existing test runner
 - Tests requiring deep RN-internal hooks (e.g. asserting on Redux state) — use Detox
 - Pure visual-regression diffing — use Percy / Chromatic / similar
-- End-to-end against real backends from CI — use Maestro Cloud or a device farm
 
 ## Prerequisites
 
@@ -125,7 +124,7 @@ Most failures (selector typos, missing waits, behaviour changes) resolve here. S
 
 **Tier 1 — live UI hierarchy (on demand, only if Tier 0 isn't enough):**
 - The booted device is still running after a flow fails. Invoke `maestro hierarchy` inline to inspect the current screen state — text, ids, resource-ids, enabled state — without re-running the flow.
-- For iOS: `maestro --device <udid> hierarchy`. For Android: `maestro --device <serial> hierarchy`. Pipe through `jq` to keep only the fields you need (e.g. `jq '.. | objects | {text, resource-id, enabled} | select(.text or ."resource-id")'`) — raw hierarchy on a busy RN screen can exceed 5k tokens.
+- For iOS: `maestro --device <udid> hierarchy`. For Android: `maestro --device <serial> hierarchy`. Pipe through `jq` to keep only the fields you need (e.g. `jq '.. | objects | {text, "resource-id", "accessibility-label", enabled} | select(.text or ."resource-id" or ."accessibility-label")'`) — raw hierarchy on a busy RN screen can exceed 5k tokens.
 - Use this to answer: does the selector exist at all? Is it disabled? Is it under a different id than the flow assumes? Did the screen even render?
 
 **Tier 2 — screenshot at failure point (only if Tier 0 + Tier 1 don't explain it):**
@@ -172,6 +171,11 @@ Across all three commands, when picking selectors:
 For Maestro YAML syntax (commands, env vars, `runFlow`, retry, conditional logic), see `references/writing-flows.md`.
 
 ## Project configuration
+
+Two config files live under `<project>/.maestro/`, with overlapping names but different owners:
+
+- **`config.json`** — read by **this skill**. Holds skill-level defaults (bundleId, dev-build paths, preferred device, Expo Go URL). Schema below.
+- **`config.yaml`** — read by **Maestro itself** when you invoke `maestro test`. Workspace-level controls: flow discovery, `executionOrder`, tag filters, `onFlowStart`/`onFlowComplete` hooks. Template at `references/flow-examples/config.yaml`. `/initflow` scaffolds it; the skill does not otherwise touch it at runtime.
 
 If the project has `<project>/.maestro/config.json`, read it for defaults:
 

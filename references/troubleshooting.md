@@ -61,7 +61,7 @@ The booted sim/emulator is still running after a flow fails — `maestro hierarc
 
 ```bash
 maestro --device <udid-or-serial> hierarchy \
-  | jq '.. | objects | {text, "resource-id", enabled} | select(.text or ."resource-id")'
+  | jq '.. | objects | {text, "resource-id", "accessibility-label", enabled} | select(.text or ."resource-id" or ."accessibility-label")'
 ```
 
 Raw hierarchy on a busy RN screen can be 5k+ tokens; the filter above typically cuts it under 1k.

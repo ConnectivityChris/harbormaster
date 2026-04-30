@@ -4,6 +4,26 @@ All notable changes to mobile-flow-runner will be documented in this file. The f
 
 ## [Unreleased]
 
+### Fixed
+- `scripts/run-flows.sh` now passes `--debug-output` and `--flatten-debug-output` so screenshots, video, and the `run.log` actually land in `<project>/.maestro/artifacts/<run-id>/<platform>/` — previously only `report.xml` was written there while screenshots/recordings went to Maestro's default location, contradicting the docs.
+- `--format junit` upgraded to canonical `--format JUNIT` (uppercase) per Maestro CLI help.
+- Selector priority in `references/writing-flows.md` corrected to `testID > accessibilityLabel > text > coords`. Previous wording inverted the order, contradicting `SKILL.md` and Maestro's own guidance.
+- `references/flow-examples/app-launch.yaml` defaults to `launchApp: { clearState: true }` (the regression-suite path) rather than `openLink: ${PROJECT_URL}` (the Expo Go path). Users on native dev builds no longer need to mutate the starter flow.
+- `references/flow-examples/view-list.yaml` now starts with `launchApp` so it can run standalone, and tags `navigation` in addition to `smoke`.
+- `scripts/install-app.sh` accepts `--source installed` as a documented no-op, matching the SKILL.md decision tree.
+- `scripts/boot-sims.sh` emits a `[warn]` line when falling back to a default UDID/AVD because no `--ios-udid` / `--avd` was passed.
+- `jq` filter for `maestro hierarchy` now includes `accessibility-label`. Previous filter dropped iOS-only labels, hiding selector-priority #2 elements.
+- README status bumped from v0.1.0 to v0.2.1; versioning section now documents both HEAD and tag-pinned install paths to match `CLAUDE.md`.
+
+### Added
+- `scripts/run-flows.sh` accepts `--include-tags` and `--exclude-tags`, surfacing Maestro's tag-filtering through the skill (flows already tag `smoke`/`auth`/`navigation`).
+- `scripts/run-flows.sh` passes `--test-suite-name` so JUnit consumers see a meaningful suite identifier per platform per run.
+- `references/flow-examples/config.yaml` — Maestro **workspace** config template. `/initflow` scaffolds it alongside the existing `config.json` (the **skill's** config). Two files with overlapping names but different owners; both belong under `<project>/.maestro/`.
+- `SPIKES.md` — parked future-work that needs a real bench test (currently: parallel iOS+Android execution via `maestro --device a,b --shard-split 2`).
+
+### Removed
+- Stray references to CI / Maestro Cloud as recommended fallbacks. The plugin is local-only and shouldn't pretend otherwise.
+
 ## [0.2.1] — 2026-04-29
 
 ### Fixed
