@@ -65,7 +65,7 @@ claude --plugin-dir ~/dev/mobile-flow-runner
 
 ## Use
 
-Once installed, three slash commands cover the flow lifecycle:
+Once installed, four slash commands cover the flow lifecycle:
 
 | Command | When |
 |---|---|

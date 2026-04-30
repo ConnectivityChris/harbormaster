@@ -141,7 +141,7 @@ This tiering applies to **debugging failures**. When **authoring** a new flow, u
 
 ## Authoring flows
 
-The skill ships three slash commands that cover the flow lifecycle. Use these as the entry points; do not reinvent the loop ad-hoc.
+The skill ships four slash commands that cover the flow lifecycle. Use these as the entry points; do not reinvent the loop ad-hoc.
 
 | Command | When to use | What it does |
 |---|---|---|
@@ -168,7 +168,7 @@ Phase C of `/authorflow` captures one screenshot per step into `<project>/.maest
 
 ### Selector priority (recap)
 
-Across all three commands, when picking selectors:
+Across all four commands, when picking selectors:
 
 1. `testID` (RN: see `references/writing-flows.md` for the `accessible={false}` container pattern when testIDs are missing from `maestro hierarchy`)
 2. `accessibilityLabel`

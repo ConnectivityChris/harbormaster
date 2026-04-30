@@ -2,7 +2,7 @@
 
 How to take a project from "no `.maestro/`" to a stable, committed flow that the next contributor can read, extend, and trust. This is the **process guide**. For Maestro YAML syntax, see `writing-flows.md`. For debugging failures, see `troubleshooting.md`.
 
-The skill exposes three slash commands for the lifecycle:
+The skill exposes four slash commands for the lifecycle:
 
 | Command | When | Phase |
 |---|---|---|
