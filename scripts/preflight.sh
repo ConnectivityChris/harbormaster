@@ -1,5 +1,5 @@
 #!/bin/bash
-# Verify all required tools for mobile-flow-runner are installed.
+# Verify all required tools for harbormaster are installed.
 # Outputs a structured status report. Exits 0 if iOS works (Android optional), 1 otherwise.
 
 set -u
@@ -12,7 +12,7 @@ warn_count=0
 err_count=0
 
 if [[ "$(uname)" != "Darwin" ]]; then
-  echo "${ERR} mobile-flow-runner requires macOS (iOS simulator unavailable elsewhere)"
+  echo "${ERR} harbormaster requires macOS (iOS simulator unavailable elsewhere)"
   exit 1
 fi
 echo "${OK} macOS detected"

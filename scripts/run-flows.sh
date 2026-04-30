@@ -62,7 +62,7 @@ run_one() {
       "${TAG_ARGS[@]}" \
       --output "$out/report.xml" \
       --format JUNIT \
-      --test-suite-name "mobile-flow-runner-$RUN_ID-$label" \
+      --test-suite-name "harbormaster-$RUN_ID-$label" \
       --debug-output "$out" \
       --flatten-debug-output \
       "$FLOWS" 2>&1 | tee "$out/run.log"
@@ -72,7 +72,7 @@ run_one() {
       "${TAG_ARGS[@]}" \
       --output "$out/report.xml" \
       --format JUNIT \
-      --test-suite-name "mobile-flow-runner-$RUN_ID-$label" \
+      --test-suite-name "harbormaster-$RUN_ID-$label" \
       --debug-output "$out" \
       --flatten-debug-output \
       "$FLOWS" 2>&1 | tee "$out/run.log"

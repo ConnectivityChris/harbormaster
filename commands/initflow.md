@@ -1,12 +1,12 @@
 ---
-description: Bootstrap a project for mobile-flow-runner — scaffolds .maestro/ directory, config, README, and starter flows
+description: Bootstrap a project for harbormaster — scaffolds .maestro/ directory, config, README, and starter flows
 argument-hint: (no arguments)
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
 The user has invoked `/initflow` to bootstrap mobile testing for this project.
 
-Run the **init phase** of the mobile-flow-runner skill — a one-time setup that scaffolds the project's `.maestro/` directory. Do this once per project; for adding individual flows after init, the user invokes `/authorflow` instead.
+Run the **init phase** of the harbormaster skill — a one-time setup that scaffolds the project's `.maestro/` directory. Do this once per project; for adding individual flows after init, the user invokes `/authorflow` instead.
 
 Follow `references/authoring-flows.md` → "Init phase" for the full procedure. Summary:
 

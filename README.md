@@ -1,10 +1,12 @@
-# mobile-flow-runner
+# harbormaster
 
-A Claude Code skill (packaged as a plugin) that runs scripted regression UI flows against iOS simulators and Android emulators, using [Maestro](https://maestro.mobile.dev) under the hood.
+A Claude Code skill (packaged as a plugin) that runs scripted regression UI flows against iOS simulators and Android emulators, using [Maestro](https://maestro.mobile.dev) under the hood. The harbormaster clears every flow before your build leaves port for TestFlight, App Store, or Play Store.
 
-Built for the loop **"I made a change → did I break anything obvious?"** — before pushing a build to TestFlight, App Store, or Play Store.
+Built for the loop **"I made a change → did I break anything obvious?"** — before pushing a build to the stores.
 
-**Status:** v0.2.2 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
+**Status:** v0.4.0 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
+
+> Renamed from `mobile-flow-runner` in v0.4.0. If you have an older install pinned to that name, see the migration note in [CHANGELOG.md](./CHANGELOG.md).
 
 ## What it does
 
@@ -34,23 +36,23 @@ When invoked, the skill:
 This repo doubles as a Claude Code plugin marketplace. Inside Claude Code:
 
 ```
-/plugin marketplace add ConnectivityChris/mobile-flow-runner
-/plugin install mobile-flow-runner@connectivity-chris
+/plugin marketplace add ConnectivityChris/harbormaster
+/plugin install harbormaster@connectivity
 ```
 
 Or via the CLI:
 
 ```bash
-claude plugin marketplace add ConnectivityChris/mobile-flow-runner
-claude plugin install mobile-flow-runner@connectivity-chris
+claude plugin marketplace add ConnectivityChris/harbormaster
+claude plugin install harbormaster@connectivity
 ```
 
 ### Versioning
 
 The plugin declares its version in `.claude-plugin/plugin.json`. Two install modes:
 
-- **Track HEAD**: `/plugin marketplace add ConnectivityChris/mobile-flow-runner` — you get whatever version is at HEAD of `main`. Updates land when you next sync.
-- **Pin to a release**: `/plugin marketplace add ConnectivityChris/mobile-flow-runner@vX.Y.Z` — pinned to a specific tag. Recommended for stable workflows.
+- **Track HEAD**: `/plugin marketplace add ConnectivityChris/harbormaster` — you get whatever version is at HEAD of `main`. Updates land when you next sync.
+- **Pin to a release**: `/plugin marketplace add ConnectivityChris/harbormaster@vX.Y.Z` — pinned to a specific tag. Recommended for stable workflows.
 
 Pinning to a tag is the canonical path for users who want predictable behaviour. HEAD is fine if you're following along with development.
 
@@ -59,8 +61,8 @@ Pinning to a tag is the canonical path for users who want predictable behaviour.
 To work on the plugin itself rather than consume it:
 
 ```bash
-git clone git@github.com:ConnectivityChris/mobile-flow-runner.git ~/dev/mobile-flow-runner
-claude --plugin-dir ~/dev/mobile-flow-runner
+git clone git@github.com:ConnectivityChris/harbormaster.git ~/dev/harbormaster
+claude --plugin-dir ~/dev/harbormaster
 ```
 
 ## Use
@@ -139,13 +141,13 @@ After that, bare `testID` on `TextInput` works directly:
 ## Layout
 
 ```
-mobile-flow-runner/
+harbormaster/
 ├── .claude-plugin/
 │   ├── plugin.json            # plugin manifest
 │   └── marketplace.json       # marketplace catalog (this repo doubles as its own marketplace)
 ├── CHANGELOG.md               # release history
 ├── skills/
-│   └── mobile-flow-runner/
+│   └── harbormaster/
 │       └── SKILL.md           # the skill (loaded into Claude's context when triggered)
 ├── commands/                  # slash commands wrapping the flow lifecycle
 │   ├── initflow.md            # /initflow — one-time project bootstrap
@@ -175,7 +177,7 @@ mobile-flow-runner/
 
 ## Releases
 
-This repo is its own Claude Code marketplace (`.claude-plugin/marketplace.json`). Users install via `/plugin marketplace add ConnectivityChris/mobile-flow-runner` (HEAD) or `@vX.Y.Z` (pinned).
+This repo is its own Claude Code marketplace (`.claude-plugin/marketplace.json`). Users install via `/plugin marketplace add ConnectivityChris/harbormaster` (HEAD) or `@vX.Y.Z` (pinned).
 
 For maintainers cutting a release, **always**:
 

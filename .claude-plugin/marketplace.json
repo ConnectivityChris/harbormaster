@@ -1,14 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "connectivity-chris",
-  "description": "Personal Claude Code plugin marketplace maintained by Chris Howard.",
+  "name": "connectivity",
+  "description": "Connectivity's Claude Code plugin marketplace, maintained by Chris Howard.",
   "owner": {
     "name": "Chris Howard",
     "email": "chris@connectivity.systems"
   },
   "plugins": [
     {
-      "name": "mobile-flow-runner",
+      "name": "harbormaster",
       "source": "./",
       "description": "Run scripted regression UI flows against iOS simulator and Android emulator for React Native, Expo, or native mobile apps using Maestro.",
       "category": "testing",

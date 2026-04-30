@@ -1,8 +1,23 @@
 # Changelog
 
-All notable changes to mobile-flow-runner will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project follows [Semantic Versioning](https://semver.org/).
+All notable changes to harbormaster (formerly `mobile-flow-runner`) will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.0] — 2026-04-30
+
+### Changed
+- **Plugin renamed from `mobile-flow-runner` to `harbormaster`.** New install handle: `/plugin install harbormaster@connectivity`. The plugin's responsibilities, slash commands (`/initflow`, `/buildsuite`, `/authorflow`, `/stabiliseflow`), scripts, and references are unchanged — this is purely a name migration.
+- **Marketplace renamed from `connectivity-chris` to `connectivity`** in the same release; the `-chris` suffix was redundant once the `owner` field already credits the maintainer. Both renames land together so users only have to migrate once.
+- GitHub repository moved to `ConnectivityChris/harbormaster`. The old `mobile-flow-runner` URL redirects via GitHub for cloned-repo discovery, but pinned marketplace installs against `ConnectivityChris/mobile-flow-runner@vX.Y.Z` should be updated.
+- `skills/mobile-flow-runner/` → `skills/harbormaster/` (with `git mv` so history follows).
+- `plugin.json` `name`, `repository`, and `skills` paths updated to reflect the new identity.
+- `marketplace.json` plugin entry renamed.
+- README, CLAUDE.md, command files, scripts, and the project README template updated to use the new name. Historical CHANGELOG entries (v0.3.0 and earlier) intentionally retain the old name — they describe what shipped at the time.
+- JUnit `--test-suite-name` prefix in `scripts/run-flows.sh` updated from `mobile-flow-runner-…` to `harbormaster-…`.
+
+### Migration notes
+For existing users with the plugin pinned to a `mobile-flow-runner` version: remove the old install (`/plugin uninstall mobile-flow-runner@connectivity-chris`) and re-add via the new handle (`/plugin marketplace add ConnectivityChris/harbormaster && /plugin install harbormaster@connectivity`). Project-level `.maestro/` directories created by `/initflow` are unaffected — they don't reference the plugin name.
 
 ## [0.3.0] — 2026-04-30
 
@@ -87,9 +102,10 @@ Initial release. End-to-end validated against an Expo SDK 55 project on iOS 26.2
 - **Dev build over Expo Go** for regression suites — Expo Go's dev menus and popovers are documented as inner-loop only
 - **ASCII-only script output** — bash `set -u` misparses unicode glyphs adjacent to variable expansions
 
-[Unreleased]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.2...v0.3.0
-[0.2.2]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/ConnectivityChris/mobile-flow-runner/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/ConnectivityChris/mobile-flow-runner/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ConnectivityChris/harbormaster/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.2.2...v0.3.0
+[0.2.2]: https://github.com/ConnectivityChris/harbormaster/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/ConnectivityChris/harbormaster/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/ConnectivityChris/harbormaster/releases/tag/v0.1.0

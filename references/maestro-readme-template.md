@@ -9,7 +9,7 @@ Substitution placeholders use `{{NAME}}` — Claude replaces these at scaffold t
 ```markdown
 # {{PROJECT_NAME}} — Maestro flows
 
-Regression UI flows for {{PROJECT_NAME}}. Driven by [Maestro](https://maestro.mobile.dev) via the [mobile-flow-runner](https://github.com/ConnectivityChris/mobile-flow-runner) Claude Code skill.
+Regression UI flows for {{PROJECT_NAME}}. Driven by [Maestro](https://maestro.mobile.dev) via the [harbormaster](https://github.com/ConnectivityChris/harbormaster) Claude Code skill.
 
 ## When to run these
 
@@ -38,7 +38,7 @@ maestro test .maestro/login.yaml
 
 Two files live under `.maestro/`:
 
-- `config.json` — **skill** config. Bundle ID, package, preferred device, dev-build paths. Read by mobile-flow-runner so the picker and install steps know your defaults.
+- `config.json` — **skill** config. Bundle ID, package, preferred device, dev-build paths. Read by harbormaster so the picker and install steps know your defaults.
 - `config.yaml` — **Maestro workspace** config. Read by `maestro test`. Controls flow discovery, `executionOrder` for dependent flows, workspace-level tag filters, and `onFlowStart`/`onFlowComplete` hooks. Edit this when you want shared setup/teardown across flows.
 
 The names overlap; the contents do not. Both belong in the directory.
@@ -75,7 +75,7 @@ Use `/authorflow <flow-name>` from Claude Code. The skill walks through intervie
 
 To bootstrap a whole suite at once, use `/buildsuite` instead — it walks the running app once with you, then loops over each candidate flow with a per-flow checkpoint to compose, run, and commit. Recommended after `/initflow` for projects with several core journeys.
 
-For the full process, see the [authoring-flows reference](https://github.com/ConnectivityChris/mobile-flow-runner/blob/main/references/authoring-flows.md) and the [building-suites reference](https://github.com/ConnectivityChris/mobile-flow-runner/blob/main/references/building-suites.md).
+For the full process, see the [authoring-flows reference](https://github.com/ConnectivityChris/harbormaster/blob/main/references/authoring-flows.md) and the [building-suites reference](https://github.com/ConnectivityChris/harbormaster/blob/main/references/building-suites.md).
 
 ## Stabilising before release
 

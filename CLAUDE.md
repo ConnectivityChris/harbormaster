@@ -19,7 +19,7 @@ Future agents working here are usually editing one of:
 Claude executes this skill in roughly the order encoded in `SKILL.md`. Four layers, each with a different load model:
 
 1. **`commands/*.md`** — slash command entry points (`/initflow`, `/buildsuite`, `/authorflow`, `/stabiliseflow`). Loaded only when the user types the slash command. Each is a thin routing layer: YAML frontmatter (description, argument-hint, allowed-tools) plus a markdown prompt that delegates to the relevant phase in `SKILL.md` + `references/authoring-flows.md`. **Do not duplicate skill logic into the command file** — keep it pointing at the references.
-2. **`skills/mobile-flow-runner/SKILL.md`** — loaded into Claude's context when the skill triggers (either by natural-language prompt or via a slash command). Holds the **decision-making and orchestration logic**: when to ask the user something, what defaults to use, how to react to script failures. Section ordering reflects runtime order (preflight → target → device → boot → install → creds → run → report). The skill **must** live under `skills/<skill-name>/` — the Claude Code plugin loader rejects `SKILL.md` at plugin root with `Path escapes plugin directory: ./ (skills)` (introduced in 0.2.1, see CHANGELOG).
+2. **`skills/harbormaster/SKILL.md`** — loaded into Claude's context when the skill triggers (either by natural-language prompt or via a slash command). Holds the **decision-making and orchestration logic**: when to ask the user something, what defaults to use, how to react to script failures. Section ordering reflects runtime order (preflight → target → device → boot → install → creds → run → report). The skill **must** live under `skills/<skill-name>/` — the Claude Code plugin loader rejects `SKILL.md` at plugin root with `Path escapes plugin directory: ./ (skills)` (introduced in 0.2.1, see CHANGELOG).
 3. **`scripts/*.sh`** — invoked by Claude per `SKILL.md`. Each is single-purpose and side-effecting. Scripts only handle mechanics (boot the sim, install the app, run Maestro); they do not make user-facing decisions.
 4. **`references/*.md`** — loaded on-demand by Claude when it needs deeper detail (Maestro YAML cheat sheet, RN-specific gotchas, platform setup, the phased authoring loop, the multi-flow suite-building loop). Treat as encyclopedic — `SKILL.md` and `commands/*.md` should *point at* references, not inline their content.
 
@@ -83,8 +83,8 @@ There are no unit tests. Validation is end-to-end against a real mobile project.
 ### Local install for development
 
 ```bash
-git clone git@github.com:ConnectivityChris/mobile-flow-runner.git ~/dev/mobile-flow-runner
-claude --plugin-dir ~/dev/mobile-flow-runner
+git clone git@github.com:ConnectivityChris/harbormaster.git ~/dev/harbormaster
+claude --plugin-dir ~/dev/harbormaster
 ```
 
 Then in Claude Code, prompt something like *"smoke test the iOS build"* and step through the skill end-to-end against a project with a `.maestro/` directory.
@@ -139,7 +139,7 @@ Keep `plugin.json` `version`, the `CHANGELOG.md` release header, the git tag, an
 
 ### Why this matters
 
-Users install via `/plugin marketplace add ConnectivityChris/mobile-flow-runner@vX.Y.Z`. That resolution chain reads `marketplace.json` from the tag, then loads `plugin.json` and the rest of the plugin contents from that tag. If the tag doesn't exist, install fails. If `plugin.json` and the tag disagree on version, the user gets confusing diagnostics. If `main` is pushed but the tag isn't, the install command falls back to HEAD silently — users get unreleased code thinking they pinned a version.
+Users install via `/plugin marketplace add ConnectivityChris/harbormaster@vX.Y.Z`. That resolution chain reads `marketplace.json` from the tag, then loads `plugin.json` and the rest of the plugin contents from that tag. If the tag doesn't exist, install fails. If `plugin.json` and the tag disagree on version, the user gets confusing diagnostics. If `main` is pushed but the tag isn't, the install command falls back to HEAD silently — users get unreleased code thinking they pinned a version.
 
 ## Conventions
 

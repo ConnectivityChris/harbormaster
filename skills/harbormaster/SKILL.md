@@ -1,5 +1,5 @@
 ---
-name: mobile-flow-runner
+name: harbormaster
 description: Run scripted regression UI flows against iOS simulator and Android emulator for React Native, Expo, or native mobile apps using Maestro. Use this skill whenever the user wants to test mobile builds locally, smoke test before pushing to the App Store or Play Store, run click-through tests on a simulator, validate Expo dev build changes, exercise an iOS sim or Android emulator programmatically, or do regression testing on mobile. Trigger even if the user does not mention "Maestro" — any request to drive an iOS simulator or Android emulator, run mobile UI tests locally, or validate mobile app behaviour before release should activate this skill.
 ---
 
