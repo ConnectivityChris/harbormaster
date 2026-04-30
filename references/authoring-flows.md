@@ -155,9 +155,17 @@ tags:
 # Start state: logged out, clean install
 # Env vars: MAESTRO_USERNAME, MAESTRO_PASSWORD, PROJECT_URL (Expo Go only), HOME_SCREEN_TEXT
 
-- clearKeychain
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
 - launchApp:
     clearState: true
+# clearKeychain is iOS-only; gating it keeps Android runs warning-free.
+# launchApp clearState: true wipes the app data dir on both platforms,
+# which on Android also clears SharedPreferences / EncryptedSharedPreferences
+# (where most RN credential libraries land tokens).
 # ...
 ```
 

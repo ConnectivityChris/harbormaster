@@ -13,9 +13,19 @@ tags:
 # Buttons (Pressable) work fine because they're already discrete.
 # See references/writing-flows.md for the full RN testing patterns.
 
-# 1. Reset auth state. Wipes iOS Keychain (where expo-secure-store lives) AND
-#    Expo Go's data (which kills the JS context, releasing in-memory caches).
-- clearKeychain
+# 1. Reset auth state. Cross-platform clean slate:
+#    - iOS: `clearKeychain` wipes the Keychain (expo-secure-store /
+#      react-native-keychain land tokens here). Gated to iOS so Android runs
+#      don't emit the "command unsupported" warning.
+#    - Both: `launchApp clearState: true` wipes the app's data dir. On Android
+#      this clears SharedPreferences / Room / SQLite / EncryptedSharedPreferences
+#      — i.e. the storage backends RN credential libraries use on Android.
+#    The combination covers session state on both platforms.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
 - launchApp:
     clearState: true
 - openLink: ${PROJECT_URL}

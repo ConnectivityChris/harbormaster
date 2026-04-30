@@ -42,10 +42,11 @@ Always step through these in order. Do not skip preflight even if the environmen
 
 Run `${CLAUDE_PLUGIN_ROOT}/scripts/preflight.sh`. It verifies:
 
-- Xcode CLI tools and full Xcode.app
-- `maestro` on PATH (offers install command if missing)
-- At least one bootable iOS simulator
-- Android SDK and AVDs (optional — warns if missing rather than failing)
+- macOS (hard requirement — iOS simulator is unavailable elsewhere)
+- `maestro` on PATH (offers install command if missing — required for both platforms)
+- Per-platform: Xcode + iOS simulators (iOS path) and adb + ANDROID_HOME + emulator + AVDs (Android path)
+
+The script exits 0 if **at least one** of iOS or Android is fully usable. Its final line reads `Platforms usable: iOS + Android`, `iOS only`, or `Android only` — read it to constrain later steps. If neither path is usable or `maestro` is missing, preflight exits 1.
 
 If a required tool is missing, walk the user through fixing it interactively. Don't dump the raw error output and stop — explain what's missing, why it matters, and the exact command to fix it. The preflight script's output is already structured this way; relay it cleanly to the user.
 
@@ -53,7 +54,11 @@ If a required tool is missing, walk the user through fixing it interactively. Do
 
 Ask the user — or infer from project context (look for `app.json`, `app.config.ts`, `ios/`, `android/`):
 
-- **Platform**: `ios`, `android`, or `both`. Default: `both` if Android is available, otherwise `ios`.
+- **Platform**: `ios`, `android`, or `both`. Default rules:
+  - Preflight reported `iOS + Android` usable → default `both`.
+  - Preflight reported `iOS only` → default `ios` (do not offer `android` or `both` — they will fail at boot).
+  - Preflight reported `Android only` → default `android` (same).
+  - Always still let the user override the default; don't silently force a single platform.
 - **App source**:
   - `dev-build` — a built `.app` (iOS sim) or `.apk` (Android). **Recommended default for regression suites.** No Expo Go overlays, no dev menu interruptions, no extra cold-reload tax. Slower first build, but cleaner steady-state.
   - `expo-go` — Expo Go installed, dev server running, deep-link to project. **Inner-loop only.** Expo Go can pop up dev tools / "What's new" / network-permission dialogs that block flows and require manual user input — fine for quick "did I break the launch?" checks, **not** suitable for a hands-off pre-release smoke run.

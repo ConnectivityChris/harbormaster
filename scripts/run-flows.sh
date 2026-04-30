@@ -55,11 +55,14 @@ run_one() {
   local out="$OUTPUT_DIR/$label"
   mkdir -p "$out"
 
+  # `${arr[@]+"${arr[@]}"}`: bash 3.2 (macOS /bin/bash) errors on `${arr[@]}`
+  # for an empty array under `set -u`. The +alt-value form expands to nothing
+  # when unset/empty, and to the array elements otherwise.
   echo "[*] Running flows on $label..."
   if [[ -n "$device_arg" ]]; then
     maestro --device "$device_arg" test \
-      "${ENV_ARGS[@]}" \
-      "${TAG_ARGS[@]}" \
+      ${ENV_ARGS[@]+"${ENV_ARGS[@]}"} \
+      ${TAG_ARGS[@]+"${TAG_ARGS[@]}"} \
       --output "$out/report.xml" \
       --format JUNIT \
       --test-suite-name "harbormaster-$RUN_ID-$label" \
@@ -68,8 +71,8 @@ run_one() {
       "$FLOWS" 2>&1 | tee "$out/run.log"
   else
     maestro test \
-      "${ENV_ARGS[@]}" \
-      "${TAG_ARGS[@]}" \
+      ${ENV_ARGS[@]+"${ENV_ARGS[@]}"} \
+      ${TAG_ARGS[@]+"${TAG_ARGS[@]}"} \
       --output "$out/report.xml" \
       --format JUNIT \
       --test-suite-name "harbormaster-$RUN_ID-$label" \

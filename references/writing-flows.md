@@ -297,17 +297,22 @@ This is the single best reason to switch to a dev build for any flow you want to
 
 Expo Go keeps your project loaded across flow runs. This means **app state survives**: a successful login on run #1 leaves the user authenticated for run #2, so the login flow under test doesn't actually exercise login the second time — it auto-redirects to home and the test silently lies.
 
-Two layers of state to clear:
+Layers of state to clear, by platform:
 
-| Storage | Cleared by |
-|---|---|
-| iOS Keychain (where `expo-secure-store` lives) | `clearKeychain` |
-| JS-side caches (TanStack Query, Zustand, React state) | `launchApp clearState: true` (kills Expo Go's JS context) |
+| Storage | Where it lives | Cleared by |
+|---|---|---|
+| iOS Keychain | `expo-secure-store` / `react-native-keychain` on iOS | `clearKeychain` (iOS only — no-op + warning on Android) |
+| Android app data | SharedPreferences, Room/SQLite, EncryptedSharedPreferences (where `expo-secure-store` / `react-native-keychain` land tokens on Android), files dir, caches dir | `launchApp clearState: true` |
+| JS-side caches | TanStack Query, Zustand, React state | `launchApp clearState: true` (kills the JS context) |
 
-The combination at the start of any flow that depends on a clean slate:
+Because `clearKeychain` is iOS-only, gate it behind a platform check so Android runs don't emit a "command unsupported" warning. The cross-platform-safe combination at the start of any flow that depends on a clean slate:
 
 ```yaml
-- clearKeychain
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
 - launchApp:
     clearState: true
 - openLink: ${PROJECT_URL}
@@ -319,6 +324,8 @@ The combination at the start of any flow that depends on a clean slate:
 ```
 
 Cost: a cold bundle reload (the 60-120s tax). Worth it for any auth-dependent flow.
+
+**Edge case — Android Keystore aliases that survive `clearState`.** Rare in RN/Expo, but if your app stores credentials directly in the Android Keystore *without* binding them to app-private files (e.g. raw `KeyStore.getInstance("AndroidKeyStore")` usage with a fixed alias and no data-dir-backed wrapper), `clearState` won't remove the key material — only the SharedPreferences pointer to it. The nuclear reset is `adb shell pm clear ${APP_ID}` run **before** the flow (Maestro flows can't shell out mid-run). For typical `expo-secure-store` / `react-native-keychain` projects this isn't needed: those libraries store the encrypted blob in app-private storage, which `clearState` wipes.
 
 ### Parameterise the appId
 
