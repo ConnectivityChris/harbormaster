@@ -73,7 +73,9 @@ Each entry below names the user journey, required env, and any project-specific 
 
 Use `/authorflow <flow-name>` from Claude Code. The skill walks through interview → screen capture → selector picking → compose → run, then appends an entry to this README.
 
-For the full process, see the [authoring-flows reference](https://github.com/ConnectivityChris/mobile-flow-runner/blob/main/references/authoring-flows.md).
+To bootstrap a whole suite at once, use `/buildsuite` instead — it walks the running app once with you, then loops over each candidate flow with a per-flow checkpoint to compose, run, and commit. Recommended after `/initflow` for projects with several core journeys.
+
+For the full process, see the [authoring-flows reference](https://github.com/ConnectivityChris/mobile-flow-runner/blob/main/references/authoring-flows.md) and the [building-suites reference](https://github.com/ConnectivityChris/mobile-flow-runner/blob/main/references/building-suites.md).
 
 ## Stabilising before release
 
@@ -81,7 +83,7 @@ After authoring, run `/stabiliseflow <flow>` to verify stability across multiple
 
 ## Artifacts
 
-Test runs write screenshots, video, and JUnit XML to `.maestro/artifacts/<run-id>/`. Authoring evidence (Phase C screenshots) lives at `.maestro/authoring-evidence/<flow>/`. Both are gitignored by default.
+Test runs write screenshots, video, and JUnit XML to `.maestro/artifacts/<run-id>/`. Authoring evidence (Phase C screenshots) lives at `.maestro/authoring-evidence/<flow>/`. `/buildsuite` writes its working plan to `.maestro/.tour-plan.json` (and archives it to `.tour-plan.archive.json` after a successful run). All four are gitignored by default.
 ```
 
 ---
