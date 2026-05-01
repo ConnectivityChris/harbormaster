@@ -143,9 +143,10 @@ Users install via `/plugin marketplace add ConnectivityChris/harbormaster@vX.Y.Z
 
 ## Conventions
 
-- **Commit messages**: short conventional-commit form (`fix(plugin): ...`, `feat(commands): ...`). No body unless genuinely needed. **Do not add `Co-Authored-By:` trailers** — user removes them.
+- **Commit messages**: short conventional-commit form (`fix(plugin): ...`, `feat(commands): ...`). **Subject line only** — do not write a body unless the user explicitly asks. **Do not add `Co-Authored-By:` trailers** — user removes them.
 - **UK English** in all committed text — `stabilise`, `behaviour`, `colour`, `prioritise`, etc. Slash command names follow this (`/stabiliseflow`, not `/stabilizeflow`).
 - **Project-agnostic docs** — no references to specific external projects (e.g. real app names) in `SKILL.md`, `README.md`, `references/`, or `commands/`. CHANGELOG entries describing past validation environments may use generic descriptions ("Expo SDK 55 project on iOS 26.2") but never name the project.
+- **Internal AI-dev artifacts stay local.** `docs/` and `SPIKES.md` are gitignored. Specs, plans, design notes, and spike write-ups belong on disk only — do not commit them. The canonical user-facing docs are `references/`. If a skill (e.g. superpowers `writing-plans`) wants to write a plan or spec file, write it under `docs/` so gitignore catches it.
 
 ## Editing guidance
 
@@ -153,3 +154,5 @@ Users install via `/plugin marketplace add ConnectivityChris/harbormaster@vX.Y.Z
 - **Adding a new script**: maintain the `[ok]/[warn]/[err]/[*]` prefix convention. Take args via `--flag value` (long-form), not positional. Set `set -u` minimum, `set -eu` if any failure should halt — but `preflight.sh` deliberately uses `-u` only because it counts and reports multiple failures.
 - **Modifying `SKILL.md`**: it controls what Claude does at runtime. Behaviour changes here propagate to every user. Do not inline content that already lives in `references/` — point at the reference instead, since references load on-demand and `SKILL.md` is loaded every invocation.
 - **Editing references**: these are read on-demand by Claude during a skill run. The frontmatter on `SKILL.md` is what triggers the skill — references have no frontmatter and are not auto-loaded.
+- **Editing `README.md`**: it's commercial-facing — keep contributor and maintainer content out (release process, source tree, local dev setup). Those live here in `CLAUDE.md`. The README answers "what is this, why should I use it, how do I install it, how stable is it" and nothing else.
+- **Status / maturity claims** in `README.md` (validation env, "exercised on X", limitations) are easy to ship stale. Before editing or copy-forwarding any such claim, check the latest CHANGELOG entries or ask the user what's actually been run.
