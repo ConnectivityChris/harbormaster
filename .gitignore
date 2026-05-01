@@ -17,3 +17,4 @@
 
 # Internal AI-assisted-dev artifacts (specs, plans, notes) — kept local, not shipped
 docs/
+SPIKES.md
