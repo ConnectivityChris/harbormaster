@@ -94,9 +94,11 @@ Manual setup, configuration schema, and the full Maestro YAML reference live in 
 
 ## Status & limitations
 
-Current version: **v0.5.1**. End-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0.
+Current version: **v0.5.1**. End-to-end validated against an Expo SDK 55 React Native app on:
+- **iOS** — iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0 (dev build)
+- **Android** — emulator with Maestro 2.5.0 (dev build)
 
-- **Android end-to-end** — scripts and docs are in place but not yet exercised against a real Android run. Expect rough edges around AVD bootstrap and `adb` deep-link URL formats.
+- **Android + Expo Go** — dev-build path is exercised; the Expo Go deep-link path on Android has not been run end-to-end. Use a dev build for Android until that path is validated.
 - **Expo Go popovers** — first-launch prompts can require manual taps. Dev build avoids this.
 - **macOS only** — iOS simulator is macOS-exclusive. Linux/Windows Android-only setups would work in principle but are not tested.
 
