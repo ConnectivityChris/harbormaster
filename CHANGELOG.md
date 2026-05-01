@@ -4,6 +4,13 @@ All notable changes to harbormaster (formerly `mobile-flow-runner`) will be docu
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-05-01
+
+### Documentation
+- **`scripts/preflight.sh` failure-path guidance hardened.** Every Android warning (`adb` missing, `ANDROID_HOME` unset, `emulator` missing, no AVDs configured) now prints a concrete `Fix:` command plus a `See: references/android-setup.md` pointer; `ANDROID_HOME` previously had no `Fix:` line at all. iOS warnings gained `See: references/ios-setup.md`. Xcode warning now includes the App Store URL inline. Maestro install branch now references the official install docs URL alongside the existing curl + brew commands. No behaviour change to exit codes or success path — purely additive guidance on the failure paths.
+- **`README.md` Prerequisites section now links its own setup docs and inlines the Maestro install commands** (curl + brew), so users hitting an install gap don't have to run preflight first to discover the fix. Each prerequisite now links to its source (Xcode App Store, Maestro docs, Android Studio download) and to the relevant `references/*-setup.md`.
+- **`references/ios-setup.md` and `references/android-setup.md`** — linked "Mac App Store" and "Android Studio" inline to their official download pages.
+
 ## [0.5.0] — 2026-05-01
 
 ### Added
@@ -121,7 +128,8 @@ Initial release. End-to-end validated against an Expo SDK 55 project on iOS 26.2
 - **Dev build over Expo Go** for regression suites — Expo Go's dev menus and popovers are documented as inner-loop only
 - **ASCII-only script output** — bash `set -u` misparses unicode glyphs adjacent to variable expansions
 
-[Unreleased]: https://github.com/ConnectivityChris/harbormaster/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/ConnectivityChris/harbormaster/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/ConnectivityChris/harbormaster/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.2.2...v0.3.0

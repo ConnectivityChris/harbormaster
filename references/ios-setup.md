@@ -5,7 +5,7 @@ What you need to drive the iOS simulator with Maestro.
 ## Required
 
 1. **macOS** — iOS simulator only runs on macOS.
-2. **Full Xcode.app** — install from the Mac App Store. Xcode CLI tools alone (the thing `xcode-select --install` gives you) are not enough; the iOS simulator runtime ships inside Xcode.app.
+2. **Full Xcode.app** — install from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835). Xcode CLI tools alone (the thing `xcode-select --install` gives you) are not enough; the iOS simulator runtime ships inside Xcode.app.
 3. **Point xcode-select at Xcode.app**:
    ```bash
    sudo xcode-select -s /Applications/Xcode.app/Contents/Developer

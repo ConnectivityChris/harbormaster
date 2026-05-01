@@ -4,7 +4,7 @@ What you need to drive the Android emulator with Maestro.
 
 ## Required
 
-1. **Android SDK** — easiest path is install Android Studio, then Tools → SDK Manager.
+1. **Android SDK** — easiest path is install [Android Studio](https://developer.android.com/studio), then Tools → SDK Manager.
 2. **`ANDROID_HOME`** environment variable — point it at the SDK root:
    ```bash
    export ANDROID_HOME="$HOME/Library/Android/sdk"

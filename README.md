@@ -22,9 +22,15 @@ When invoked, the skill:
 ## Prerequisites
 
 - **macOS** (iOS simulator requires Xcode)
-- **Xcode** + CLI tools (for iOS)
-- **Maestro CLI** (skill will offer to install if missing)
-- **Android SDK + AVD** (optional, for Android — skill runs iOS-only otherwise)
+- **[Xcode](https://apps.apple.com/app/xcode/id497799835)** + CLI tools (for iOS) — full setup help in [`references/ios-setup.md`](./references/ios-setup.md)
+- **[Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro)** (skill's preflight will offer to install if missing). Manual install:
+  ```bash
+  # curl
+  curl -fsSL "https://get.maestro.mobile.dev" | bash
+  # or brew
+  brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro
+  ```
+- **[Android SDK](https://developer.android.com/studio) + AVD** (optional, for Android — skill runs iOS-only otherwise) — full setup help in [`references/android-setup.md`](./references/android-setup.md)
 
 ## Expo Go vs dev build
 

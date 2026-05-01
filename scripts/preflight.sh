@@ -31,14 +31,16 @@ echo "iOS:"
 if ! xcode-select -p &>/dev/null; then
   echo "${WARN} Xcode CLI tools not installed — iOS path disabled"
   echo "    Fix: xcode-select --install"
+  echo "    See: references/ios-setup.md"
   warn_count=$((warn_count + 1))
   ios_ok=false
 else
   XCODE_PATH=$(xcode-select -p)
   if [[ "$XCODE_PATH" == "/Library/Developer/CommandLineTools" ]]; then
     echo "${WARN} Only Xcode CLI tools found, not full Xcode — iOS simulator will not work"
-    echo "    Fix: install Xcode.app from the App Store, then:"
+    echo "    Fix: install Xcode.app from the App Store (https://apps.apple.com/app/xcode/id497799835), then:"
     echo "         sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+    echo "    See: references/ios-setup.md"
     warn_count=$((warn_count + 1))
     ios_ok=false
   else
@@ -71,13 +73,17 @@ echo "Android:"
 
 if ! command -v adb &>/dev/null; then
   echo "${WARN} adb not on PATH — Android path disabled"
-  echo "    Fix: install Android SDK platform-tools and add to PATH"
+  echo "    Fix: install Android Studio (https://developer.android.com/studio),"
+  echo "         then add \$ANDROID_HOME/platform-tools to PATH"
+  echo "    See: references/android-setup.md"
   warn_count=$((warn_count + 1))
   android_ok=false
 fi
 
 if [[ -z "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}" ]]; then
   echo "${WARN} ANDROID_HOME / ANDROID_SDK_ROOT not set — Android path disabled"
+  echo "    Fix: export ANDROID_HOME=\"\$HOME/Library/Android/sdk\" (default Android Studio location)"
+  echo "    See: references/android-setup.md"
   warn_count=$((warn_count + 1))
   android_ok=false
 fi
@@ -86,6 +92,7 @@ if $android_ok; then
   if ! command -v emulator &>/dev/null; then
     echo "${WARN} emulator binary not on PATH — Android path disabled"
     echo "    Fix: add \$ANDROID_HOME/emulator to PATH"
+    echo "    See: references/android-setup.md"
     warn_count=$((warn_count + 1))
     android_ok=false
   else
@@ -96,6 +103,7 @@ if $android_ok; then
     else
       echo "${WARN} No AVDs configured — Android path disabled"
       echo "    Fix: open Android Studio [*] Device Manager [*] Create Virtual Device"
+      echo "    See: references/android-setup.md"
       warn_count=$((warn_count + 1))
       android_ok=false
     fi
@@ -114,6 +122,7 @@ else
   echo "${ERR} Maestro CLI not installed (required for both platforms)"
   echo "    Fix (curl): curl -fsSL 'https://get.maestro.mobile.dev' | bash"
   echo "    Fix (brew): brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro"
+  echo "    Docs: https://docs.maestro.dev/getting-started/installing-maestro"
   err_count=$((err_count + 1))
   maestro_ok=false
 fi
