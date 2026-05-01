@@ -14,3 +14,6 @@
 # Maestro `takeScreenshot:` defaults to CWD when no path is given —
 # guards against bench-run screenshots landing at repo root.
 /*.png
+
+# Internal AI-assisted-dev artifacts (specs, plans, notes) — kept local, not shipped
+docs/

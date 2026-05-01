@@ -48,7 +48,7 @@ For existing users with the plugin pinned to a `mobile-flow-runner` version: rem
 ## [0.3.0] — 2026-04-30
 
 ### Added
-- `/buildsuite` slash command — fourth lifecycle command for building a core suite of flows in a single session. Walks the running app once with the user (a guided tour), builds a shared selector + screen plan persisted to `<project>/.maestro/.tour-plan.json`, then loops over each planned flow with a per-flow `[yes / skip / stop]` checkpoint to compose, run, and commit. Reuses `/initflow`'s project-discovery logic and `/authorflow`'s Phase D-F conventions. Full design in `docs/superpowers/specs/2026-04-30-buildsuite-design.md`; depth doc in `references/building-suites.md`.
+- `/buildsuite` slash command — fourth lifecycle command for building a core suite of flows in a single session. Walks the running app once with the user (a guided tour), builds a shared selector + screen plan persisted to `<project>/.maestro/.tour-plan.json`, then loops over each planned flow with a per-flow `[yes / skip / stop]` checkpoint to compose, run, and commit. Reuses `/initflow`'s project-discovery logic and `/authorflow`'s Phase D-F conventions. Depth doc in `references/building-suites.md`.
 - `references/building-suites.md` — depth doc for `/buildsuite` (five phases, plan schema, coverage-checklist UX, edge cases).
 
 ### Changed
