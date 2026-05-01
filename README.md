@@ -1,199 +1,118 @@
 # harbormaster
 
-A Claude Code skill (packaged as a plugin) that runs scripted regression UI flows against iOS simulators and Android emulators, using [Maestro](https://maestro.mobile.dev) under the hood. The harbormaster clears every flow before your build leaves port for TestFlight, App Store, or Play Store.
+[![Version](https://img.shields.io/github/v/tag/ConnectivityChris/harbormaster?label=version&sort=semver)](https://github.com/ConnectivityChris/harbormaster/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-7C3AED)](https://claude.com/claude-code)
+[![Powered by Maestro](https://img.shields.io/badge/powered%20by-Maestro-00C853)](https://maestro.mobile.dev)
 
-Built for the loop **"I made a change → did I break anything obvious?"** — before pushing a build to the stores.
+**Smoke-test your mobile app from a single Claude Code prompt — before every TestFlight, App Store, or Play Store push.**
 
-**Status:** v0.4.0 — end-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0, running both `app-launch` and `login` smoke flows. Android path implemented but not yet exercised end-to-end.
+Manual click-through testing is the tax you keep paying on every release. harbormaster is a Claude Code plugin that drives [Maestro](https://maestro.mobile.dev) flows against iOS simulators and Android emulators, so the loop *"I made a change → did I break anything obvious?"* takes one prompt instead of fifteen minutes of taps.
 
-> Renamed from `mobile-flow-runner` in v0.4.0. If you have an older install pinned to that name, see the migration note in [CHANGELOG.md](./CHANGELOG.md).
+## Quickstart
 
-## What it does
-
-When invoked, the skill:
-
-1. **Preflights** your machine (Xcode, Maestro, Android SDK)
-2. **Boots** an iOS simulator and/or Android emulator
-3. **Installs** your app — dev build, Expo Go deep-link, or already-installed
-4. **Reads any required credentials** from your shell environment, or prompts for them at the start of the run (the skill never stores credentials anywhere)
-5. **Runs** the Maestro flows in your project's `.maestro/` directory
-6. **Reports** pass/fail with screenshots, video, and JUnit XML for any failures
-
-## Prerequisites
-
-- **macOS** (iOS simulator requires Xcode)
-- **[Xcode](https://apps.apple.com/app/xcode/id497799835)** + CLI tools (for iOS) — full setup help in [`references/ios-setup.md`](./references/ios-setup.md)
-- **[Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro)** (skill's preflight will offer to install if missing). Manual install:
-  ```bash
-  # curl
-  curl -fsSL "https://get.maestro.mobile.dev" | bash
-  # or brew
-  brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro
-  ```
-- **[Android SDK](https://developer.android.com/studio) + AVD** (optional, for Android — skill runs iOS-only otherwise) — full setup help in [`references/android-setup.md`](./references/android-setup.md)
-
-## Expo Go vs dev build
-
-- **Dev build** (`bunx expo run:ios` / `:android`) is the **recommended target for regression runs**. No Expo Go overlays, no dev tools popovers, no cold-reload tax — flows run hands-off.
-- **Expo Go** is fine for inner-loop "did I break the launch?" checks but not for hands-off automation: dev menus, "What's new" sheets, and permission prompts can interrupt flows and require manual taps. Treat it as a fast feedback loop, not a release-gate.
-
-## Install
-
-This repo doubles as a Claude Code plugin marketplace. Inside Claude Code:
+In Claude Code:
 
 ```
 /plugin marketplace add ConnectivityChris/harbormaster
 /plugin install harbormaster@connectivity
 ```
 
-Or via the CLI:
+Then, inside a mobile project (React Native, Expo, or native):
 
-```bash
-claude plugin marketplace add ConnectivityChris/harbormaster
-claude plugin install harbormaster@connectivity
+```
+/initflow            # one-time: scaffolds .maestro/ with starter flows
+/authorflow login    # add a flow with a guided interview + screen capture
 ```
 
-### Versioning
+That's it. The skill preflights your env, boots a sim, installs your build, runs the flows, and reports pass/fail with screenshots, video, and JUnit XML.
 
-The plugin declares its version in `.claude-plugin/plugin.json`. Two install modes:
+## What you get
 
-- **Track HEAD**: `/plugin marketplace add ConnectivityChris/harbormaster` — you get whatever version is at HEAD of `main`. Updates land when you next sync.
-- **Pin to a release**: `/plugin marketplace add ConnectivityChris/harbormaster@vX.Y.Z` — pinned to a specific tag. Recommended for stable workflows.
+- **One-prompt regression runs.** "Smoke test the build" → preflight → boot sim → install → run flows → diagnosis. No bespoke CI, no scripted glue code on your side.
+- **Guided flow authoring.** Slash commands walk you through composing flows with screen captures, accessibility-tree inspection, and selector picking — so flows actually run hands-off the first time.
+- **iOS + Android, dev build or Expo Go.** Per-platform device picker, dev-build install, or Expo Go deep-link. Defaults to dev build for hands-off reliability.
+- **Credentials never persisted.** Reads from your shell env or prompts per-run. No `.env` writes, no Keychain integration, no surprises.
+- **Token-aware failure diagnosis.** When a flow fails, the skill reads logs first, then the live UI hierarchy, and only loads screenshots if the failure is visual — keeping context windows lean.
 
-Pinning to a tag is the canonical path for users who want predictable behaviour. HEAD is fine if you're following along with development.
+## The four commands
 
-### Local development
-
-To work on the plugin itself rather than consume it:
-
-```bash
-git clone git@github.com:ConnectivityChris/harbormaster.git ~/dev/harbormaster
-claude --plugin-dir ~/dev/harbormaster
-```
-
-## Use
-
-Once installed, four slash commands cover the flow lifecycle:
-
-| Command | When |
+| Command | When to use |
 |---|---|
-| `/initflow` | First time using the skill on a project — scaffolds `.maestro/` with starter flows tuned to your project |
-| `/buildsuite` | After `/initflow` — build a core suite of flows in one session via a guided tour of the app + per-flow authoring checkpoints. See `commands/buildsuite.md` |
-| `/authorflow [flow-name]` | Adding a new flow — guided interview, screen capture, selector picking, compose, run |
-| `/stabiliseflow <flow> [N]` | Hardening a flow before relying on it as a release gate — runs N times, reports flake rate |
+| `/initflow` | First time on a project — scaffolds `.maestro/` with starter flows tuned to your project |
+| `/buildsuite` | Build a core suite of flows in one session via a guided tour + per-flow checkpoints |
+| `/authorflow [flow-name]` | Add a single flow — guided interview, screen capture, selector picking, run |
+| `/stabiliseflow <flow> [N]` | Harden a flow before relying on it as a release gate — runs N times, reports flake rate |
 
-The skill also triggers on natural-language prompts like:
+The skill also triggers on natural-language prompts (e.g. *"smoke test the iOS build before I push"*) — slash commands are the explicit entry points.
 
-- "Run the regression flows on iOS"
-- "Test the app on the simulator before I push"
-- "Smoke test the mobile build"
-- "Click through the login flow on Android"
+## Why harbormaster vs the alternatives
 
-For new projects, start with `/initflow` then `/authorflow app-launch`.
+| | harbormaster | Bare Maestro CLI | Detox | Manual QA |
+|---|---|---|---|---|
+| Authoring help | Guided, AI-assisted | DIY YAML | JS test code | n/a |
+| Sim/emulator orchestration | Built-in | DIY shell | Built-in | n/a |
+| Failure diagnosis | Tiered, token-aware | Raw logs | Stack traces | Memory |
+| Setup time | One install | Hours | Days | Zero |
+| Best for | Pre-release smoke | Custom CI | Deep RN-internal asserts | One-off checks |
+
+Use Detox or unit tests where you need them. harbormaster owns the **"is this build OK to ship?"** loop.
+
+## Prerequisites
+
+- **macOS** (iOS simulator requires Xcode)
+- **[Xcode](https://apps.apple.com/app/xcode/id497799835)** + CLI tools (for iOS) — full setup help in [`references/ios-setup.md`](./references/ios-setup.md)
+- **[Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro)** (preflight will offer to install if missing). Manual install:
+  ```bash
+  curl -fsSL "https://get.maestro.mobile.dev" | bash    # or
+  brew tap mobile-dev-inc/tap && brew install mobile-dev-inc/tap/maestro
+  ```
+- **[Android SDK](https://developer.android.com/studio) + AVD** (optional — skill runs iOS-only otherwise) — full setup help in [`references/android-setup.md`](./references/android-setup.md)
+
+## Install
+
+```bash
+# Inside Claude Code (recommended — pin to a release tag)
+/plugin marketplace add ConnectivityChris/harbormaster@v0.5.1
+/plugin install harbormaster@connectivity
+```
+
+Drop the `@v0.5.1` to track HEAD instead. Pinning is recommended for stable workflows; HEAD is fine if you want unreleased changes.
 
 ## Project setup
 
-Use `/initflow` from Claude Code to scaffold the `.maestro/` directory automatically. It discovers your project's `bundleId` / `package`, detects whether you have auth, and writes starter flows + an onboarding README.
+Run `/initflow` from inside your mobile project. It discovers your `bundleId` / `package`, detects auth, and scaffolds `.maestro/` with starter flows, an onboarding README, and a `config.json` of skill defaults.
 
-If you'd rather set up by hand, add a `.maestro/` directory with your flow files (YAML) and optionally `.maestro/config.json` for project-level defaults:
+Manual setup, configuration schema, and the full Maestro YAML reference live in [`references/`](./references). Starter flows are in [`references/flow-examples/`](./references/flow-examples/) — copy and adapt.
 
-```json
-{
-  "ios": {
-    "bundleId": "com.example.app",
-    "devBuildPath": "ios/build/Build/Products/Debug-iphonesimulator/Example.app",
-    "preferredDevice": "iPhone 17 Pro"
-  },
-  "android": {
-    "package": "com.example.app",
-    "devBuildPath": "android/app/build/outputs/apk/debug/app-debug.apk",
-    "preferredAvd": "Pixel_8_Pro"
-  },
-  "expoGo": {
-    "devServerUrl": "exp://192.168.1.10:8081"
-  }
-}
-```
+> **React Native gotcha:** Maestro talks to your app via the accessibility tree, and RN on iOS sometimes drops `testID` on inputs. The fix is one prop on a parent container — see [`references/writing-flows.md`](./references/writing-flows.md) for the full pattern.
 
-Starter flows are in `references/flow-examples/` — copy and adapt.
+## Expo Go vs dev build
 
-### One-time app changes for hands-off flows
+- **Dev build** (`bunx expo run:ios|:android`) — recommended for regression runs. No overlays, no popovers, no cold-reload tax.
+- **Expo Go** — fine for quick "did I break the launch?" checks; not for hands-off automation. Dev menus and permission prompts can interrupt flows.
 
-Maestro talks to your app via the iOS / Android accessibility tree. React Native on iOS sometimes flattens descendants of an accessibility-container parent into one bundled label, which silently drops `testID` on every child. The fix is **one prop on the container**, not a wrapper per input:
+## Status & limitations
 
-```tsx
-// In your layout component (KeyboardAvoidingView, SafeAreaView, AuthLayout, etc.)
-<KeyboardAvoidingView accessible={false} ...>
-  {children}
-</KeyboardAvoidingView>
-```
+Current version: **v0.5.1**. End-to-end validated against an Expo SDK 55 React Native app on iPhone 17 Pro / iOS 26.2 with Maestro 2.5.0.
 
-After that, bare `testID` on `TextInput` works directly:
+- **Android end-to-end** — scripts and docs are in place but not yet exercised against a real Android run. Expect rough edges around AVD bootstrap and `adb` deep-link URL formats.
+- **Expo Go popovers** — first-launch prompts can require manual taps. Dev build avoids this.
+- **macOS only** — iOS simulator is macOS-exclusive. Linux/Windows Android-only setups would work in principle but are not tested.
 
-```tsx
-<FormTextInput name="email" testID="email_input" ... />
-<FormTextInput name="password" testID="password_input" secureTextEntry ... />
-<Button testID="login_submit" onPress={...}>...</Button>
-```
+## Documentation
 
-`<Pressable>` and `<Button>` already expose `testID` natively without container help. The `accessible={false}` fix is needed only when an ancestor View is acting as an accessibility container that swallows descendants. See `references/writing-flows.md` for the full RN-specific patterns and the per-input wrapper fallback for cases where you can't reach the container.
+- [`skills/harbormaster/SKILL.md`](./skills/harbormaster/SKILL.md) — runtime orchestration logic
+- [`references/writing-flows.md`](./references/writing-flows.md) — Maestro YAML cheat sheet + RN patterns
+- [`references/authoring-flows.md`](./references/authoring-flows.md) — phased authoring loop
+- [`references/building-suites.md`](./references/building-suites.md) — `/buildsuite` depth doc
+- [`references/troubleshooting.md`](./references/troubleshooting.md) — common failures and fixes
+- [`CHANGELOG.md`](./CHANGELOG.md) — release history
 
-## Known limitations / not yet exercised
+## Support
 
-- **Android end-to-end** — scripts and docs are in place but no real Android run has been completed. Expect rough edges around AVD bootstrap and `adb` deep-link URL formats.
-- **Expo Go popovers** — Expo Go's dev menu, "What's new" sheets, and first-launch permission prompts can block flows mid-run and require manual taps. Use a dev build for hands-off automation.
-- **macOS only** — iOS simulator is macOS-exclusive. Android-only setups on Linux / Windows would work in principle but the skill currently assumes a Mac.
-
-## Layout
-
-```
-harbormaster/
-├── .claude-plugin/
-│   ├── plugin.json            # plugin manifest
-│   └── marketplace.json       # marketplace catalog (this repo doubles as its own marketplace)
-├── CHANGELOG.md               # release history
-├── skills/
-│   └── harbormaster/
-│       └── SKILL.md           # the skill (loaded into Claude's context when triggered)
-├── commands/                  # slash commands wrapping the flow lifecycle
-│   ├── initflow.md            # /initflow — one-time project bootstrap
-│   ├── buildsuite.md          # /buildsuite — guided tour + multi-flow authoring
-│   ├── authorflow.md          # /authorflow — phased authoring loop for a single flow
-│   └── stabiliseflow.md       # /stabiliseflow — multi-run flake detection
-├── scripts/
-│   ├── preflight.sh           # validate env
-│   ├── list-devices.sh        # enumerate iOS sims and Android AVDs for picker
-│   ├── boot-sims.sh           # boot chosen iOS sim + Android emulator
-│   ├── install-app.sh         # install dev build or open Expo Go
-│   └── run-flows.sh           # run Maestro and capture artifacts
-└── references/
-    ├── authoring-flows.md     # phased loop process guide (init / author / stabilise)
-    ├── building-suites.md     # /buildsuite depth doc (tour-then-author lifecycle)
-    ├── writing-flows.md       # Maestro YAML cheat sheet + RN-specific patterns
-    ├── maestro-readme-template.md # onboarding-doc template for <project>/.maestro/README.md
-    ├── ios-setup.md           # Xcode + sim setup help
-    ├── android-setup.md       # Android SDK + AVD setup help
-    ├── troubleshooting.md     # common failures + fixes (incl. token-aware debug tiering)
-    └── flow-examples/         # generic starter flows
-        ├── app-launch.yaml
-        ├── login.yaml
-        ├── view-list.yaml
-        └── config.yaml        # Maestro workspace config template
-```
-
-## Releases
-
-This repo is its own Claude Code marketplace (`.claude-plugin/marketplace.json`). Users install via `/plugin marketplace add ConnectivityChris/harbormaster` (HEAD) or `@vX.Y.Z` (pinned).
-
-For maintainers cutting a release, **always**:
-
-1. Bump `version` in `.claude-plugin/plugin.json`.
-2. Move `[Unreleased]` items in `CHANGELOG.md` under a new `[X.Y.Z] — YYYY-MM-DD` header.
-3. Update comparison link footers in `CHANGELOG.md`.
-4. Commit and `git push origin main`.
-5. `git tag vX.Y.Z && git push origin vX.Y.Z`.
-
-The git tag IS the marketplace release. An unpushed tag means version-pinned installs fall back silently to HEAD — users get unreleased code thinking they pinned. Push the tag every time. See `CLAUDE.md` → "Release process" for the full reasoning.
+- **Issues & feature requests:** [github.com/ConnectivityChris/harbormaster/issues](https://github.com/ConnectivityChris/harbormaster/issues)
+- **Source:** [github.com/ConnectivityChris/harbormaster](https://github.com/ConnectivityChris/harbormaster)
 
 ## License
 
