@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "harbormaster",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Run scripted regression UI flows against iOS simulator and Android emulator for React Native, Expo, and native mobile apps using Maestro.",
   "author": {
     "name": "Chris Howard",

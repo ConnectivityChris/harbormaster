@@ -4,6 +4,25 @@ All notable changes to harbormaster (formerly `mobile-flow-runner`) will be docu
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-01
+
+### Added
+- **Android-only setups now supported.** `scripts/preflight.sh` previously hard-required iOS (Xcode + simulator); it now succeeds if at least one of iOS or Android is fully usable. The script's final line reads `Platforms usable: iOS + Android`, `iOS only`, or `Android only` so downstream steps can constrain themselves. Maestro is the only universally required tool.
+- **Cross-platform-safe state reset in flow templates.** `references/flow-examples/login.yaml`, `references/writing-flows.md`, and `references/authoring-flows.md` now gate `clearKeychain` behind `runFlow: when: platform: iOS` so Android runs are warning-free; `launchApp clearState: true` handles Android session reset (clears SharedPreferences / Room / SQLite / EncryptedSharedPreferences — where RN credential libraries land tokens on Android). Documents the rare edge case (raw Android Keystore aliases that survive `clearState`).
+
+### Changed
+- **`scripts/boot-sims.sh` aligned with `scripts/run-flows.sh` for `--platform both`.** Previously `boot_ios && boot_android` short-circuited the Android boot if iOS failed; now both attempt independently and the script exits with the union of failures, matching `run-flows.sh`'s design. Switched `set -eu` → `set -u` so failures surface via explicit return-code checks.
+- **`scripts/boot-sims.sh` Android boot loop now bounded.** A 180-second timeout plus emulator-process liveness check replaces the previous unbounded `while sys.boot_completed != 1` loop — a crashed AVD can no longer hang the script indefinitely.
+- **`skills/harbormaster/SKILL.md` preflight contract + platform defaults updated.** Step 1 documents the `Platforms usable: …` line and the new exit-0-on-either-platform contract. Step 2 platform default rules now key off the preflight verdict (`iOS + Android` → `both`, `iOS only` → `ios`, `Android only` → `android`) so the skill doesn't silently default to a platform that will fail at boot.
+- **`skills/harbormaster/SKILL.md` `--platform both` orchestration tightened.** Step 3 (device picker) now explicitly handles "one of each" selection when both platforms are requested. Step 5 (install) documents the per-platform invocation loop required for `--platform both` and warns that Expo Go's per-platform bundle ID divergence (`host.exp.Exponent` vs `host.exp.exponent`) makes it incompatible with a single `--env APP_ID=…` value — recommends dev builds for `both` runs.
+
+### Fixed
+- **`scripts/run-flows.sh` no longer crashes with `TAG_ARGS[@]: unbound variable`** when invoked without `--include-tags` or `--env` flags. The `${arr[@]}` syntax errors under `/bin/bash` 3.2 (macOS system bash) + `set -u` for empty arrays; replaced with the `${arr[@]+"${arr[@]}"}` idiom at all four call sites in the `maestro test` invocation. Bug surfaced during dogfooding.
+
+### Repository hygiene
+- `.gitignore` now excludes `/*.png` at repo root — guards against Maestro's `takeScreenshot:` step accidentally depositing screenshots in the repo when bench-running flows from this directory.
+- `SPIKES.md` parallel-sharding entry replaced with a parked summary preserving the bench numbers (176 s sequential → 104 s sharded, 40 % improvement) and Q1/Q2/Q4 findings. Sequential implementation remains; the spike documents why parking is justified at current usage and what would need to change if it's revived.
+
 ## [0.4.0] — 2026-04-30
 
 ### Changed
@@ -102,7 +121,8 @@ Initial release. End-to-end validated against an Expo SDK 55 project on iOS 26.2
 - **Dev build over Expo Go** for regression suites — Expo Go's dev menus and popovers are documented as inner-loop only
 - **ASCII-only script output** — bash `set -u` misparses unicode glyphs adjacent to variable expansions
 
-[Unreleased]: https://github.com/ConnectivityChris/harbormaster/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ConnectivityChris/harbormaster/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ConnectivityChris/harbormaster/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/ConnectivityChris/harbormaster/compare/v0.2.1...v0.2.2
